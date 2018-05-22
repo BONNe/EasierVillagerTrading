@@ -36,8 +36,11 @@ public class BetterGuiMerchant extends GuiMerchant
         if (ConfigurationHandler.showLeft())
         {
             this.xBase = -ConfigurationHandler.leftPixelOffset();
+
             if (this.xBase == 0)
-                this.xBase = -this.getXSize();
+			{
+				this.xBase = -this.getXSize();
+			}
         }
         else
         {
@@ -106,6 +109,7 @@ public class BetterGuiMerchant extends GuiMerchant
             if (enchantments != null)
             {
                 StringBuilder enchants = new StringBuilder();
+
                 for (int t = 0; t < enchantments.tagCount(); ++t)
                 {
                     int j = enchantments.getCompoundTagAt(t).getShort("id");
@@ -116,7 +120,10 @@ public class BetterGuiMerchant extends GuiMerchant
                     if (enchant != null)
                     {
                         if (t > 0)
-                            enchants.append(", ");
+						{
+							enchants.append(", ");
+						}
+
                         enchants.append(enchant.getTranslatedName(k));
                     }
                 }
