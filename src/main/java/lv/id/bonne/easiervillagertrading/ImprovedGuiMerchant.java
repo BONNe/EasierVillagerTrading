@@ -7,6 +7,7 @@ package lv.id.bonne.easiervillagertrading;
 
 import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
 import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
+import lv.id.bonne.easiervillagertrading.buttons.CheckBoxButton;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
@@ -63,14 +64,14 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 		if (ConfigurationHandler.showLeft())
 		{
-			this.sellAllCheckbox = new GuiCheckBox(991,
+			this.sellAllCheckbox = new CheckBoxButton(991,
 				this.getGuiLeft() - 20,
 				this.guiTop - 15, "Sell All Items",
 				ConfigurationHandler.isDefaultSellAll());
 		}
 		else
 		{
-			this.sellAllCheckbox = new GuiCheckBox(991,
+			this.sellAllCheckbox = new CheckBoxButton(991,
 				this.getGuiLeft() + this.getXSize(),
 				this.guiTop - 15, "Sell All Items",
 				ConfigurationHandler.isDefaultSellAll());
@@ -248,7 +249,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 		if (guiButton == this.sellAllCheckbox)
 		{
-			ConfigurationHandler.setDefaultSellAll(this.sellAllCheckbox.isChecked());
+			this.sellAllCheckbox.processButton();
 		}
 	}
 
@@ -646,7 +647,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
     // Variables
     //------------------------------------------------------------------------------------------------------------------
 
-	private GuiCheckBox sellAllCheckbox;
+	private CheckBoxButton sellAllCheckbox;
 
     private int xBase = 0;
 

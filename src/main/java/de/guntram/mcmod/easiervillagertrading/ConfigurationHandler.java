@@ -26,7 +26,7 @@ public class ConfigurationHandler
         {
             this.config = new Configuration(configFile);
             this.configFileName = configFile.getPath();
-            this. loadConfig();
+            this.loadConfig();
         }
     }
 
@@ -89,6 +89,19 @@ public class ConfigurationHandler
     }
 
 
+    public static boolean isDefaultSellAll()
+    {
+        return ConfigurationHandler.getInstance().sellAll;
+    }
+
+
+    public static void setDefaultSellAll(boolean checked)
+    {
+        ConfigurationHandler.getInstance().sellAll = checked;
+    }
+
+
+
     //------------------------------------------------------------------------------------------------------------------
     // Variables
     //------------------------------------------------------------------------------------------------------------------
@@ -105,4 +118,6 @@ public class ConfigurationHandler
     private int leftPixelOffset;
 
     private boolean autoFocusSearch;
+
+    private boolean sellAll;
 }
