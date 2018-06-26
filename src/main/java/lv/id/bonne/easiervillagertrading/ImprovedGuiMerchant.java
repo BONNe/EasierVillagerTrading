@@ -8,6 +8,7 @@ package lv.id.bonne.easiervillagertrading;
 import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
 import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
 import lv.id.bonne.easiervillagertrading.buttons.CheckBoxButton;
+import lv.id.bonne.easiervillagertrading.buttons.RecipeButton;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
@@ -77,6 +78,9 @@ public class ImprovedGuiMerchant extends GuiMerchant
 				ConfigurationHandler.isDefaultSellAll());
 		}
 
+
+		this.buttonPanel = new ButtonPanel(this, 0, 0, 200, 100);
+
 		this.addButton(this.sellAllCheckbox);
 		this.sellAllCheckbox.enabled = true;
 	}
@@ -86,6 +90,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	public void updateScreen()
 	{
 		super.updateScreen();
+		this.buttonPanel.validateTradingButtons();
 	}
 
 
@@ -101,6 +106,8 @@ public class ImprovedGuiMerchant extends GuiMerchant
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+		this.buttonPanel.drawAllButtons(mouseX, mouseY, partialTicks);
 	}
 
 
@@ -613,13 +620,13 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 
 	//------------------------------------------------------------------------------------------------------------------
-	// Public Methods
+	// Section: Public Methods
 	//------------------------------------------------------------------------------------------------------------------
 
 
 	public MerchantRecipe getMerchantRecipe(int recipeIndex)
 	{
-		MerchantRecipeList merchantRecipeList = this.getMerchant().getRecipes(null);
+		MerchantRecipeList merchantRecipeList = this.getRecipes();
 
 		if (merchantRecipeList == null || merchantRecipeList.isEmpty() || merchantRecipeList.size() <= recipeIndex)
 		{
@@ -643,11 +650,31 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
+	public MerchantRecipeList getRecipes()
+	{
+		return this.getMerchant().getRecipes(null);
+	}
+
+
+	public void addRecipeButton(RecipeButton button)
+	{
+		this.buttonList.add(button);
+	}
+
+
+	public void removeRecipeButton(RecipeButton button)
+	{
+		this.buttonList.remove(button);
+	}
+
+
     //------------------------------------------------------------------------------------------------------------------
-    // Variables
+    // Section: Variables
     //------------------------------------------------------------------------------------------------------------------
 
 	private CheckBoxButton sellAllCheckbox;
+
+    private ButtonPanel buttonPanel;
 
     private int xBase = 0;
 
