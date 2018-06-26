@@ -7,10 +7,12 @@ package lv.id.bonne.easiervillagertrading;
 
 import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
 import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
@@ -606,6 +608,37 @@ public class ImprovedGuiMerchant extends GuiMerchant
 				0,
 				ClickType.PICKUP,
 				this.mc.player);
+	}
+
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Public Methods
+	//------------------------------------------------------------------------------------------------------------------
+
+
+	public MerchantRecipe getMerchantRecipe(int recipeIndex)
+	{
+		MerchantRecipeList merchantRecipeList = this.getMerchant().getRecipes(null);
+
+		if (merchantRecipeList == null || merchantRecipeList.isEmpty() || merchantRecipeList.size() <= recipeIndex)
+		{
+			// Recipe not found.
+			return null;
+		}
+
+		return merchantRecipeList.get(recipeIndex);
+	}
+
+
+	public RenderItem getItemRender()
+	{
+		return this.itemRender;
+	}
+
+
+	public FontRenderer getFontRender()
+	{
+		return this.fontRenderer;
 	}
 
 
