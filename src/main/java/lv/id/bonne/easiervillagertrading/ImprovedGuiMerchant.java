@@ -49,6 +49,11 @@ public class ImprovedGuiMerchant extends GuiMerchant
     }
 
 
+	//------------------------------------------------------------------------------------------------------------------
+	// Overrided methods
+	//------------------------------------------------------------------------------------------------------------------
+
+
 	@Override
 	public void initGui()
 	{
@@ -74,6 +79,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
+	@Override
 	public void updateScreen()
 	{
 		super.updateScreen();
@@ -232,6 +238,93 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
+
+	@Override
+	protected void actionPerformed(GuiButton guiButton) throws IOException
+	{
+		super.actionPerformed(guiButton);
+
+		if (guiButton == this.sellAllCheckbox)
+		{
+			ConfigurationHandler.setDefaultSellAll(this.sellAllCheckbox.isChecked());
+		}
+	}
+
+
+	@Override
+	protected void mouseClicked(final int mouseX, final int mouseY, final int mouseButton) throws IOException
+	{
+		MerchantRecipeList trades = this.getMerchant().getRecipes(null);
+
+		if (trades == null)
+		{
+			return;
+		}
+
+		int numTrades = trades.size();
+		int topAdjust = this.getTopAdjust(numTrades);
+
+		// System.out.println("click at "+mouseX+"/"+mouseY);
+
+		if (mouseButton == 0 &&
+				(mouseX - this.guiLeft) >= this.xBase &&
+				(mouseX - this.guiLeft) <= this.xBase + this.textXpos &&
+				(mouseY - this.guiTop) >= -topAdjust + this.titleDistance)
+		{
+			int tradeIndex = (mouseY + topAdjust - this.guiTop - this.titleDistance) / this.lineHeight;
+
+			if (tradeIndex >= 0 && tradeIndex < numTrades)
+			{
+				// System.out.println("tradeIndex="+tradeIndex+", numTrades="+numTrades);
+				GuiButton myNextButton = this.buttonList.get(0);
+				GuiButton myPrevButton = this.buttonList.get(1);
+
+				for (int i = 0; i < numTrades; i++)
+				{
+					this.actionPerformed(myPrevButton);
+				}
+
+				for (int i = 0; i < tradeIndex; i++)
+				{
+					this.actionPerformed(myNextButton);
+				}
+
+				MerchantRecipe recipe = trades.get(tradeIndex);
+
+				if (this.sellAllCheckbox.isChecked())
+				{
+					while (!recipe.isRecipeDisabled() &&
+							this.inputSlotsAreEmpty() &&
+							this.hasEnoughItemsInInventory(recipe) &&
+							this.canReceiveOutput(recipe.getItemToSell()))
+					{
+						this.transact(recipe);
+					}
+				}
+				else
+				{
+					if (!recipe.isRecipeDisabled() &&
+							this.inputSlotsAreEmpty() &&
+							this.hasEnoughItemsInInventory(recipe) &&
+							this.canReceiveOutput(recipe.getItemToSell()))
+					{
+						this.transact(recipe);
+					}
+				}
+			}
+		}
+		else
+		{
+			super.mouseClicked(mouseX, mouseY, mouseButton);
+		}
+	}
+
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Private methods
+	//------------------------------------------------------------------------------------------------------------------
+
+
     private int getTopAdjust(int numTrades)
     {
         int topAdjust = ((numTrades * this.lineHeight + this.titleDistance) - this.ySize) / 2;
@@ -270,87 +363,6 @@ public class ImprovedGuiMerchant extends GuiMerchant
         if (mousex >= x && mousex <= x + 16 && mousey >= y && mousey <= y + 16)
         {
             this.renderToolTip(stack, mousex, mousey);
-        }
-    }
-
-
-	@Override
-	protected void actionPerformed(GuiButton guiButton) throws IOException
-	{
-		super.actionPerformed(guiButton);
-
-		if (guiButton == this.sellAllCheckbox)
-		{
-			ConfigurationHandler.setDefaultSellAll(this.sellAllCheckbox.isChecked());
-		}
-	}
-
-
-	@Override
-    protected void mouseClicked(final int mouseX, final int mouseY, final int mouseButton) throws IOException
-    {
-		MerchantRecipeList trades = this.getMerchant().getRecipes(null);
-
-		if (trades == null)
-		{
-			return;
-		}
-
-		int numTrades = trades.size();
-		int topAdjust = this.getTopAdjust(numTrades);
-
-    	// System.out.println("click at "+mouseX+"/"+mouseY);
-
-        if (mouseButton == 0 &&
-			(mouseX - this.guiLeft) >= this.xBase &&
-			(mouseX - this.guiLeft) <= this.xBase + this.textXpos &&
-			(mouseY - this.guiTop) >= -topAdjust + this.titleDistance)
-        {
-            int tradeIndex = (mouseY + topAdjust - this.guiTop - this.titleDistance) / this.lineHeight;
-
-            if (tradeIndex >= 0 && tradeIndex < numTrades)
-            {
-                // System.out.println("tradeIndex="+tradeIndex+", numTrades="+numTrades);
-                GuiButton myNextButton = this.buttonList.get(0);
-                GuiButton myPrevButton = this.buttonList.get(1);
-
-                for (int i = 0; i < numTrades; i++)
-                {
-                    this.actionPerformed(myPrevButton);
-                }
-
-                for (int i = 0; i < tradeIndex; i++)
-                {
-                    this.actionPerformed(myNextButton);
-                }
-
-                MerchantRecipe recipe = trades.get(tradeIndex);
-
-                if (this.sellAllCheckbox.isChecked())
-				{
-					while (!recipe.isRecipeDisabled() &&
-						this.inputSlotsAreEmpty() &&
-						this.hasEnoughItemsInInventory(recipe) &&
-						this.canReceiveOutput(recipe.getItemToSell()))
-					{
-						this.transact(recipe);
-					}
-				}
-				else
-				{
-					if (!recipe.isRecipeDisabled() &&
-						this.inputSlotsAreEmpty() &&
-						this.hasEnoughItemsInInventory(recipe) &&
-						this.canReceiveOutput(recipe.getItemToSell()))
-					{
-						this.transact(recipe);
-					}
-				}
-            }
-        }
-        else
-        {
-            super.mouseClicked(mouseX, mouseY, mouseButton);
         }
     }
 
@@ -589,30 +601,11 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
     private void slotClick(int slot)
     {
-    	if (this.delay > 0)
-		{
-			this.processDelay();
-		}
-
 		this.mc.playerController.windowClick(this.mc.player.openContainer.windowId,
 				slot,
 				0,
 				ClickType.PICKUP,
 				this.mc.player);
-	}
-
-
-	private void processDelay()
-	{
-		long targetTime = System.currentTimeMillis() + this.delay;
-
-		while (System.currentTimeMillis() < targetTime)
-		{
-//			System.out.println(System.currentTimeMillis() + " " + targetTime + " " + delay);
-//			a++;
-			// do something
-		}
-//		System.out.println(a);
 	}
 
 
@@ -637,8 +630,6 @@ public class ImprovedGuiMerchant extends GuiMerchant
     private final int sellItemXpos = 60;
 
     private final int textXpos = 85;
-
-	private final int delay = ConfigurationHandler.getDelay();
 
 	private static final ResourceLocation icons = new ResourceLocation(EasierVillagerTrading.MODID, "textures/icons.png");
 }
