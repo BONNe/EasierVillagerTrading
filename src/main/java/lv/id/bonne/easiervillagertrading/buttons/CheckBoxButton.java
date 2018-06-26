@@ -1,12 +1,3 @@
-//
-// Tom Sawyer Software
-// Copyright 2007 - 2018
-// All rights reserved.
-//
-// www.tomsawyer.com
-//
-
-
 package lv.id.bonne.easiervillagertrading.buttons;
 
 
