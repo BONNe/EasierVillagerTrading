@@ -6,6 +6,7 @@ import java.util.List;
 
 import lv.id.bonne.easiervillagertrading.buttons.RecipeButton;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.village.MerchantRecipeList;
 
 
@@ -66,6 +67,24 @@ public class ButtonPanel
 		{
 			button.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
 		}
+	}
+
+
+	public int getRecipeFromButton(GuiButton inputButton)
+	{
+		int recipeIndex = -1;
+
+		for (RecipeButton button : this.tradingButtons)
+		{
+			if (button == inputButton)
+			{
+				// Not nice to quit loop like this, but ... :)
+
+				return button.getRecipeIndex();
+			}
+		}
+
+		return recipeIndex;
 	}
 
 
