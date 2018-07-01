@@ -28,12 +28,15 @@ public class RecipeTextButton  extends IRecipeButton
 		int widthIn,
 		int heightIn,
 		int recipeIndex,
-		ImprovedGuiMerchant merchantGui)
+		ImprovedGuiMerchant merchantGui,
+		boolean showEnchants)
 	{
 		super(buttonId, x, y, widthIn, heightIn, recipeIndex, merchantGui, 0, 18, 60);
 
 		this.okOrNotOffset = 40;
 		this.textOffset = 85;
+
+		this.showEnchants = showEnchants;
 	}
 
 
@@ -104,56 +107,58 @@ public class RecipeTextButton  extends IRecipeButton
 			this.x + this.sellItemOffset,
 			this.y);
 
-		NBTTagList enchantments;
-
-		if (sellItem.getItem() instanceof ItemEnchantedBook)
+		if (this.showEnchants)
 		{
-			enchantments = ItemEnchantedBook.getEnchantments(sellItem);
-		}
-		else
-		{
-			enchantments = sellItem.getEnchantmentTagList();
-		}
+			NBTTagList enchantments;
 
-		if (enchantments != null)
-		{
-			StringBuilder enchants = new StringBuilder();
-
-			for (int index = 0; index < enchantments.tagCount(); ++index)
+			if (sellItem.getItem() instanceof ItemEnchantedBook)
 			{
-				int enchantID = enchantments.getCompoundTagAt(index).getShort("id");
-				int enchantLevel = enchantments.getCompoundTagAt(index).getShort("lvl");
+				enchantments = ItemEnchantedBook.getEnchantments(sellItem);
+			}
+			else
+			{
+				enchantments = sellItem.getEnchantmentTagList();
+			}
 
-				Enchantment enchant = Enchantment.getEnchantmentByID(enchantID);
+			if (enchantments != null)
+			{
+				StringBuilder enchants = new StringBuilder();
 
-				if (enchant != null)
+				for (int index = 0; index < enchantments.tagCount(); ++index)
 				{
-					if (index > 0)
+					int enchantID = enchantments.getCompoundTagAt(index).getShort("id");
+					int enchantLevel = enchantments.getCompoundTagAt(index).getShort("lvl");
+
+					Enchantment enchant = Enchantment.getEnchantmentByID(enchantID);
+
+					if (enchant != null)
 					{
-						enchants.append(", ");
+						if (index > 0)
+						{
+							enchants.append(", ");
+						}
+
+						enchants.append(enchant.getTranslatedName(enchantLevel));
 					}
-
-					enchants.append(enchant.getTranslatedName(enchantLevel));
 				}
+
+				String shownEnchants = enchants.toString();
+
+				if (this.x < 0)
+				{
+					// TODO: This must be reworked.
+
+					shownEnchants = this.merchantGui.getFontRender().trimStringToWidth(
+						shownEnchants,
+						-this.x - this.textOffset - 5);
+				}
+
+				this.merchantGui.getFontRender().drawString(shownEnchants,
+					this.x + this.textOffset,
+					this.y,
+					0xffff00);
 			}
-
-			String shownEnchants = enchants.toString();
-
-			if (this.x < 0)
-			{
-				// TODO: This must be reworked.
-
-				shownEnchants = this.merchantGui.getFontRender().trimStringToWidth(
-					shownEnchants,
-					-this.x - this.textOffset - 5);
-			}
-
-			this.merchantGui.getFontRender().drawString(shownEnchants,
-				this.x + this.textOffset,
-				this.y,
-				0xffff00);
 		}
-
 
 		RenderHelper.disableStandardItemLighting();
 
@@ -214,6 +219,10 @@ public class RecipeTextButton  extends IRecipeButton
 	 */
 	private final int textOffset;
 
+	/**
+	 * This variable holds if enchant text should be rendered.
+	 */
+	private final boolean showEnchants;
 
 // ---------------------------------------------------------------------
 // Section: Constants
