@@ -159,7 +159,13 @@ public abstract class IRecipeButton extends GuiButton
 	// ---------------------------------------------------------------------
 
 
-	private final static int ITEM_STACK_WIDTH = 16;
+	private static final int ITEM_STACK_WIDTH = 16;
 
-	private final static int ITEM_STACK_HIGH = 16;
+	private static final int ITEM_STACK_HIGH = 16;
+
+	public static final int BUTTON_TYPE_TEXT_WITH_ENCHANTS = 0;
+
+	public static final int BUTTON_TYPE_TEXT = 1;
+
+	public static final int BUTTON_TYPE_COMPACT = 2;
 }
