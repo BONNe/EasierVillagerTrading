@@ -39,7 +39,7 @@ public class RecipeButton extends IRecipeButton
 
 		// TODO: Performance can be improved if do not check buttons that is outside MouseX and MouseY.
 
-		if (recipe != null)
+		if (recipe != null && this.visible)
 		{
 			this.drawTooltip(recipe.getItemToBuy(),
 				this.x + this.firstBuyItemOffset,

@@ -48,7 +48,7 @@ public class RecipeTextButton  extends IRecipeButton
 	{
 		MerchantRecipe recipe = this.merchantGui.getMerchantRecipe(this.recipeIndex);
 
-		if (recipe != null)
+		if (recipe != null && this.visible)
 		{
 			this.drawTooltip(recipe.getItemToBuy(),
 				this.x + this.firstBuyItemOffset,
@@ -80,127 +80,130 @@ public class RecipeTextButton  extends IRecipeButton
 	@Override
 	public void drawButton(Minecraft minecraft, int mouseX, int mouseY, float p)
 	{
-		RenderHelper.enableGUIStandardItemLighting();
-
-		MerchantRecipe recipe = this.merchantGui.getMerchantRecipe(this.recipeIndex);
-
-		this.renderItem(recipe.getItemToBuy(),
-			this.merchantGui.getItemRender(),
-			this.merchantGui.getFontRender(),
-			this.x + this.firstBuyItemOffset,
-			this.y);
-
-		if (recipe.hasSecondItemToBuy())
+		if (this.visible)
 		{
-			this.renderItem(recipe.getSecondItemToBuy(),
+			RenderHelper.enableGUIStandardItemLighting();
+
+			MerchantRecipe recipe = this.merchantGui.getMerchantRecipe(this.recipeIndex);
+
+			this.renderItem(recipe.getItemToBuy(),
 				this.merchantGui.getItemRender(),
 				this.merchantGui.getFontRender(),
-				this.x + this.secondBuyItemOffset,
+				this.x + this.firstBuyItemOffset,
 				this.y);
-		}
 
-		ItemStack sellItem = recipe.getItemToSell();
-
-		this.renderItem(sellItem,
-			this.merchantGui.getItemRender(),
-			this.merchantGui.getFontRender(),
-			this.x + this.sellItemOffset,
-			this.y);
-
-		if (this.showEnchants)
-		{
-			NBTTagList enchantments;
-
-			if (sellItem.getItem() instanceof ItemEnchantedBook)
+			if (recipe.hasSecondItemToBuy())
 			{
-				enchantments = ItemEnchantedBook.getEnchantments(sellItem);
+				this.renderItem(recipe.getSecondItemToBuy(),
+					this.merchantGui.getItemRender(),
+					this.merchantGui.getFontRender(),
+					this.x + this.secondBuyItemOffset,
+					this.y);
+			}
+
+			ItemStack sellItem = recipe.getItemToSell();
+
+			this.renderItem(sellItem,
+				this.merchantGui.getItemRender(),
+				this.merchantGui.getFontRender(),
+				this.x + this.sellItemOffset,
+				this.y);
+
+			if (this.showEnchants)
+			{
+				NBTTagList enchantments;
+
+				if (sellItem.getItem() instanceof ItemEnchantedBook)
+				{
+					enchantments = ItemEnchantedBook.getEnchantments(sellItem);
+				}
+				else
+				{
+					enchantments = sellItem.getEnchantmentTagList();
+				}
+
+				if (enchantments != null)
+				{
+					StringBuilder enchants = new StringBuilder();
+
+					for (int index = 0; index < enchantments.tagCount(); ++index)
+					{
+						int enchantID = enchantments.getCompoundTagAt(index).getShort("id");
+						int enchantLevel = enchantments.getCompoundTagAt(index).getShort("lvl");
+
+						Enchantment enchant = Enchantment.getEnchantmentByID(enchantID);
+
+						if (enchant != null)
+						{
+							if (index > 0)
+							{
+								enchants.append(", ");
+							}
+
+							enchants.append(enchant.getTranslatedName(enchantLevel));
+						}
+					}
+
+					String shownEnchants = enchants.toString();
+
+					if (this.x < 0)
+					{
+						// TODO: This must be reworked.
+
+						shownEnchants = this.merchantGui.getFontRender().trimStringToWidth(
+							shownEnchants,
+							-this.x - this.textOffset - 5);
+					}
+
+					this.merchantGui.getFontRender().drawString(shownEnchants,
+						this.x + this.textOffset,
+						this.y,
+						0xffff00);
+				}
+			}
+
+			RenderHelper.disableStandardItemLighting();
+
+			// needed so items don't get a text color overlay
+			GlStateManager.color(1f, 1f, 1f, 1f);
+			GlStateManager.enableBlend();
+
+			// arrows; use standard item lighting for them so we need a separate loop
+			minecraft.getTextureManager().bindTexture(RecipeTextButton.icons);
+
+			if (!recipe.isRecipeDisabled() &&
+				this.merchantGui.inputSlotsAreEmpty() &&
+				this.merchantGui.hasEnoughItemsInInventory(recipe) &&
+				this.merchantGui.canReceiveOutput(recipe.getItemToSell()))
+			{
+				// green arrow right
+				this.drawTexturedModalRect(this.x + this.okOrNotOffset,
+					this.y,
+					6 * 18,
+					2 * 18,
+					18,
+					18);
+			}
+			else if (!recipe.isRecipeDisabled())
+			{
+				// empty arrow right
+				this.drawTexturedModalRect(this.x + this.okOrNotOffset,
+					this.y,
+					5 * 18,
+					3 * 18,
+					18,
+					18);
 			}
 			else
 			{
-				enchantments = sellItem.getEnchantmentTagList();
-			}
-
-			if (enchantments != null)
-			{
-				StringBuilder enchants = new StringBuilder();
-
-				for (int index = 0; index < enchantments.tagCount(); ++index)
-				{
-					int enchantID = enchantments.getCompoundTagAt(index).getShort("id");
-					int enchantLevel = enchantments.getCompoundTagAt(index).getShort("lvl");
-
-					Enchantment enchant = Enchantment.getEnchantmentByID(enchantID);
-
-					if (enchant != null)
-					{
-						if (index > 0)
-						{
-							enchants.append(", ");
-						}
-
-						enchants.append(enchant.getTranslatedName(enchantLevel));
-					}
-				}
-
-				String shownEnchants = enchants.toString();
-
-				if (this.x < 0)
-				{
-					// TODO: This must be reworked.
-
-					shownEnchants = this.merchantGui.getFontRender().trimStringToWidth(
-						shownEnchants,
-						-this.x - this.textOffset - 5);
-				}
-
-				this.merchantGui.getFontRender().drawString(shownEnchants,
-					this.x + this.textOffset,
+				// red X
+				this.drawTexturedModalRect(this.x + this.okOrNotOffset,
 					this.y,
-					0xffff00);
+					12 * 18,
+					3 * 18,
+					18,
+					18);
 			}
-		}
-
-		RenderHelper.disableStandardItemLighting();
-
-		// needed so items don't get a text color overlay
-		GlStateManager.color(1f, 1f, 1f, 1f);
-		GlStateManager.enableBlend();
-
-		// arrows; use standard item lighting for them so we need a separate loop
-		minecraft.getTextureManager().bindTexture(RecipeTextButton.icons);
-
-		if (!recipe.isRecipeDisabled() &&
-			this.merchantGui.inputSlotsAreEmpty() &&
-			this.merchantGui.hasEnoughItemsInInventory(recipe) &&
-			this.merchantGui.canReceiveOutput(recipe.getItemToSell()))
-		{
-			// green arrow right
-			this.drawTexturedModalRect(this.x + this.okOrNotOffset,
-				this.y,
-				6 * 18,
-				2 * 18,
-				18,
-				18);
-		}
-		else if (!recipe.isRecipeDisabled())
-		{
-			// empty arrow right
-			this.drawTexturedModalRect(this.x + this.okOrNotOffset,
-				this.y,
-				5 * 18,
-				3 * 18,
-				18,
-				18);
-		}
-		else
-		{
-			// red X
-			this.drawTexturedModalRect(this.x + this.okOrNotOffset,
-				this.y,
-				12 * 18,
-				3 * 18,
-				18,
-				18);
 		}
 	}
 
