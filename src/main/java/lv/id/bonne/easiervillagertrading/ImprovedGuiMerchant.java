@@ -53,8 +53,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		this.nextRecipeButton = this.buttonList.get(0);
 		this.previousRecipeButton = this.buttonList.get(1);
 
-		this.buttonPanel = new ButtonPanel(this, 0, 0, 200, 100);
-
+		this.buttonPanel = new ButtonPanel(this);
 
 		if (ConfigurationHandler.showLeft())
 		{
