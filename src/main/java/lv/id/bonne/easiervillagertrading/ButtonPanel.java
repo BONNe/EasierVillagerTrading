@@ -209,16 +209,18 @@ public class ButtonPanel
 			final int size = merchantRecipes.size();
 
 			int buttonHigh = 20;
-			int buttonWidth;
+			int buttonWidth = this.buttonType == IRecipeButton.BUTTON_TYPE_COMPACT ? 58 : 80;
 
-			if (this.buttonType == IRecipeButton.BUTTON_TYPE_COMPACT)
+			// process paging
+
+			this.elementsPerPage = this.maxColumnCount * this.height / 20;
+
+			if (this.elementsPerPage < size)
 			{
-				buttonWidth = 58;
+				this.maxPageCount = size / this.elementsPerPage;
 			}
-			else
-			{
-				buttonWidth = 80;
-			}
+
+			// process button layout
 
 			int x;
 			int y;
@@ -226,12 +228,19 @@ public class ButtonPanel
 			int currRow;
 			int currCol;
 
-			for (int i = 0; i < size; i++)
+			for (int index = 0; index < size; index++)
 			{
-				if (i >= this.tradingButtons.size())
+				if (index >= this.tradingButtons.size())
 				{
-					currRow = i / this.maxColumnCount;
-					currCol = i % this.maxColumnCount;
+					int elementIndex = index;
+
+					while (elementIndex >= this.elementsPerPage)
+					{
+						elementIndex = elementIndex - this.elementsPerPage;
+					}
+
+					currRow = elementIndex / this.maxColumnCount;
+					currCol = elementIndex % this.maxColumnCount;
 					x = this.xPosition + currCol * buttonWidth;
 					y = this.yPosition + currRow * buttonHigh;
 
@@ -244,7 +253,7 @@ public class ButtonPanel
 							y,
 							buttonWidth,
 							buttonHigh,
-							i,
+							index,
 							this.merchantGui);
 					}
 					else
@@ -254,7 +263,7 @@ public class ButtonPanel
 							y,
 							buttonWidth,
 							buttonHigh,
-							i,
+							index,
 							this.merchantGui,
 							this.buttonType == IRecipeButton.BUTTON_TYPE_TEXT_WITH_ENCHANTS);
 					}
@@ -279,14 +288,46 @@ public class ButtonPanel
 	{
 		if (this.showButtons)
 		{
-			for (IRecipeButton button : this.tradingButtons)
+			if (this.tradingButtons.size() < this.elementsPerPage)
 			{
-				button.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
-			}
+				// Single page. Easy.
 
-			for (IRecipeButton button : this.tradingButtons)
+				for (IRecipeButton button : this.tradingButtons)
+				{
+					button.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+				}
+
+				for (IRecipeButton button : this.tradingButtons)
+				{
+					button.drawTooltips(mouseX, mouseY);
+				}
+
+				this.nextPageButton.visible = false;
+				this.previousPageButton.visible = false;
+			}
+			else
 			{
-				button.drawTooltips(mouseX, mouseY);
+				// Per page.
+
+				int firstElement = this.currentPageIndex * this.elementsPerPage;
+
+				for (int index = 0; index < this.tradingButtons.size(); index++)
+				{
+					GuiButton button = this.tradingButtons.get(index);
+
+					button.visible = index >= firstElement && index < firstElement + this.elementsPerPage;
+					button.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+				}
+
+				for (int index = firstElement;
+					index < this.tradingButtons.size() && index < firstElement + this.elementsPerPage;
+					index++)
+				{
+					this.tradingButtons.get(index).drawTooltips(mouseX, mouseY);
+				}
+
+				this.previousPageButton.enabled = this.currentPageIndex != 0;
+				this.nextPageButton.enabled = this.currentPageIndex < this.maxPageCount - 1;
 			}
 
 			this.previousPageButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
@@ -314,6 +355,36 @@ public class ButtonPanel
 		}
 
 		return recipeIndex;
+	}
+
+
+	/**
+	 * This method returns if given GuiButton is RecipeButton.
+	 * @param button GuiButton that must be checked.
+	 * @return
+	 * 		<code>true</code> if given button is RecipeButton.
+	 * 		<code>false</code> if given button is not RecipeButton.
+	 */
+	public boolean isRecipeButton(GuiButton button)
+	{
+		return button instanceof IRecipeButton;
+	}
+
+
+	/**
+	 * This method process given button pressing action.
+	 * @param button GuiButton.
+	 */
+	public void actionPerformed(GuiButton button)
+	{
+		if (button == this.nextPageButton)
+		{
+			this.currentPageIndex++;
+		}
+		else if (button == this.previousPageButton)
+		{
+			this.currentPageIndex--;
+		}
 	}
 
 
@@ -372,8 +443,29 @@ public class ButtonPanel
 	 */
 	private boolean showButtons;
 
+	/**
+	 * This variable holds current page index.
+	 */
+	private int currentPageIndex = 0;
+
+	/**
+	 * This variable hold max page count.
+	 */
+	private int maxPageCount = 1;
+
+	/**
+	 * This variable holds how much elements are in single page.
+	 */
+	private int elementsPerPage;
+
+	/**
+	 * This button allows to get next recipe button page.
+	 */
 	private PageButton nextPageButton;
 
+	/**
+	 * This button allows to get previous recipe button page.
+	 */
 	private PageButton previousPageButton;
 
 // ---------------------------------------------------------------------

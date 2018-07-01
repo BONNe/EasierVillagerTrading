@@ -101,13 +101,18 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		{
 			// All other buttons.
 
-			if (guiButton == this.sellAllCheckbox)
+			if (this.buttonPanel.isRecipeButton(guiButton))
 			{
-				this.sellAllCheckbox.processButton();
+				this.processRecipeTrading(this.buttonPanel.getRecipeFromButton(guiButton));
 			}
 			else
 			{
-				this.processRecipeTrading(this.buttonPanel.getRecipeFromButton(guiButton));
+				this.buttonPanel.actionPerformed(guiButton);
+			}
+
+			if (guiButton == this.sellAllCheckbox)
+			{
+				this.sellAllCheckbox.processButton();
 			}
 		}
 	}
