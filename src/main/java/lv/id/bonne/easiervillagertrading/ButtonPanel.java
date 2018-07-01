@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
+import lv.id.bonne.easiervillagertrading.buttons.PageButton;
 import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeButton;
 import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeTextButton;
 import net.minecraft.client.Minecraft;
@@ -96,6 +97,15 @@ public class ButtonPanel
 			this.xPosition = 0;
 			this.yPosition = 0;
 		}
+
+		// Add new PageButtons above current button panel.
+		this.previousPageButton =
+			new PageButton(this.lastUnusedButtonId++, this.xPosition, this.yPosition - 15, false);
+		this.nextPageButton =
+			new PageButton(this.lastUnusedButtonId++, this.xPosition + 46, this.yPosition - 15, true);
+
+		this.merchantGui.addGuiButton(this.previousPageButton);
+		this.merchantGui.addGuiButton(this.nextPageButton);
 
 		this.validateButtonType();
 
@@ -250,7 +260,7 @@ public class ButtonPanel
 					}
 
 
-					this.merchantGui.addRecipeButton(newRecipeButton);
+					this.merchantGui.addGuiButton(newRecipeButton);
 					this.tradingButtons.add(newRecipeButton);
 					this.lastUnusedButtonId++;
 				}
@@ -278,6 +288,9 @@ public class ButtonPanel
 			{
 				button.drawTooltips(mouseX, mouseY);
 			}
+
+			this.previousPageButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+			this.nextPageButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
 		}
 	}
 
@@ -358,6 +371,10 @@ public class ButtonPanel
 	 * This variable holds if recipe buttons can be showed.
 	 */
 	private boolean showButtons;
+
+	private PageButton nextPageButton;
+
+	private PageButton previousPageButton;
 
 // ---------------------------------------------------------------------
 // Section: Constants

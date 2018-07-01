@@ -549,9 +549,9 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * This method adds given IRecipeButton to buttonList.
 	 * @param button New Recipe Button.
 	 */
-	public void addRecipeButton(IRecipeButton button)
+	public void addGuiButton(GuiButton button)
 	{
-		this.buttonList.add(button);
+		this.addButton(button);
 	}
 
 
@@ -559,7 +559,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * This method removes given IRecipeButton to buttonList.
 	 * @param button Recipe Button that must be removed.
 	 */
-	public void removeRecipeButton(IRecipeButton button)
+	public void removeButton(GuiButton button)
 	{
 		this.buttonList.remove(button);
 	}
