@@ -8,7 +8,6 @@ package lv.id.bonne.easiervillagertrading;
 import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
 import lv.id.bonne.easiervillagertrading.buttons.CheckBoxButton;
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
-import lv.id.bonne.easiervillagertrading.buttons.RecipeButton;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
@@ -561,7 +560,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * This method removes given IRecipeButton to buttonList.
 	 * @param button Recipe Button that must be removed.
 	 */
-	public void removeRecipeButton(RecipeButton button)
+	public void removeRecipeButton(IRecipeButton button)
 	{
 		this.buttonList.remove(button);
 	}
