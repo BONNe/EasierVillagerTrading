@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
-import lv.id.bonne.easiervillagertrading.buttons.RecipeButton;
-import lv.id.bonne.easiervillagertrading.buttons.RecipeTextButton;
+import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeButton;
+import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeTextButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.village.MerchantRecipeList;

@@ -1,7 +1,8 @@
-package lv.id.bonne.easiervillagertrading.buttons;
+package lv.id.bonne.easiervillagertrading.buttons.recipebuttons;
 
 import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
 import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
+import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
