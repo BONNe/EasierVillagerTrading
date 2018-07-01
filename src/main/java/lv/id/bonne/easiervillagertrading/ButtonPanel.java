@@ -63,19 +63,19 @@ public class ButtonPanel
 		if (side == LEFT_SIDE)
 		{
 			this.width = merchantGuiLeftSide - offsetFromMainPanel - offsetFromWindowLeftSide;
-			this.height = windowHeight - offsetFromWindowsTopSide - offsetFromWindowsBottomSide;
+			this.height = windowHeight - merchantGuiTopSide - offsetFromWindowsBottomSide;
 
 			this.xPosition = offsetFromWindowLeftSide;
-			this.yPosition = offsetFromWindowsTopSide;
+			this.yPosition = merchantGuiTopSide;
 		}
 		else if (side == RIGHT_SIDE)
 		{
 			// TODO: Probably not correct. I assume that left and right side are with equal size.
 			this.width = merchantGuiLeftSide - offsetFromMainPanel - offsetFromWindowRightSide;
-			this.height = windowHeight - offsetFromWindowsTopSide - offsetFromWindowsBottomSide;
+			this.height = windowHeight - merchantGuiTopSide - offsetFromWindowsBottomSide;
 
 			this.xPosition = merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel;
-			this.yPosition = offsetFromWindowsTopSide;
+			this.yPosition = merchantGuiTopSide;
 		}
 		else if (side == TOP_SIDE)
 		{
