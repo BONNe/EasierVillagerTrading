@@ -6,58 +6,45 @@
 package lv.id.bonne.easiervillagertrading;
 
 import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
-import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
 import lv.id.bonne.easiervillagertrading.buttons.CheckBoxButton;
+import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
 import lv.id.bonne.easiervillagertrading.buttons.RecipeButton;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.config.GuiCheckBox;
 
 import java.io.IOException;
 
 
+/**
+ * This is new Merchant Gui that contains custom panel with all Merchant Recipes.
+ */
 public class ImprovedGuiMerchant extends GuiMerchant
 {
-
+	/**
+	 * {@inheritDoc}
+	 */
     public ImprovedGuiMerchant(InventoryPlayer inv, GuiMerchant template, World world)
     {
         super(inv, template.getMerchant(), world);
-
-        if (ConfigurationHandler.showLeft())
-        {
-            this.xBase = -ConfigurationHandler.leftPixelOffset();
-
-            if (this.xBase == 0)
-			{
-				this.xBase = -this.getXSize();
-			}
-        }
-        else
-        {
-            this.xBase = this.getXSize() + 5;
-        }
     }
 
 
-	//------------------------------------------------------------------------------------------------------------------
-	// Overrided methods
-	//------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// Section: Overrided methods
+// ---------------------------------------------------------------------
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void initGui()
 	{
@@ -90,6 +77,9 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void updateScreen()
 	{
@@ -98,6 +88,9 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void actionPerformed(GuiButton guiButton) throws IOException
 	{
@@ -122,14 +115,9 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
-
-	@Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
-    {
-        super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
-    }
-
-
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
@@ -139,266 +127,16 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
-    @Override
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
-    {
-        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
-
-        MerchantRecipeList trades = this.getMerchant().getRecipes(null);
-
-        if (trades == null)
-        {
-            return;
-        }
-
-        int topAdjust = this.getTopAdjust(trades.size());
-
-		String s = trades.size() + " trades";
-        this.fontRenderer.drawString(s, this.xBase, -topAdjust, 0xff00ff);
-
-        // First draw all items, then all tooltips. This is extra effort,
-        // but we don't want any items in front of any tooltips.
-
-        RenderHelper.enableGUIStandardItemLighting();
-
-        for (int i = 0; i < trades.size(); i++)
-        {
-            MerchantRecipe trade = trades.get(i);
-            ItemStack i1 = trade.getItemToBuy();
-            ItemStack i2 = trade.hasSecondItemToBuy() ? trade.getSecondItemToBuy() : null;
-            ItemStack o1 = trade.getItemToSell();
-
-			this.drawItem(i1, this.xBase + this.firstBuyItemXpos, i * this.lineHeight - topAdjust + this.titleDistance);
-			this.drawItem(i2, this.xBase + this.secondBuyItemXpos, i * this.lineHeight - topAdjust + this.titleDistance);
-			this.drawItem(o1, this.xBase + this.sellItemXpos, i * this.lineHeight - topAdjust + this.titleDistance);
-
-            NBTTagList enchantments;
-
-            if (o1.getItem() instanceof ItemEnchantedBook)
-            {
-                enchantments = ((ItemEnchantedBook) (o1.getItem())).getEnchantments(o1);
-            }
-            else
-            {
-                enchantments = o1.getEnchantmentTagList();
-            }
-
-            if (enchantments != null)
-            {
-                StringBuilder enchants = new StringBuilder();
-
-                for (int t = 0; t < enchantments.tagCount(); ++t)
-                {
-                    int j = enchantments.getCompoundTagAt(t).getShort("id");
-                    int k = enchantments.getCompoundTagAt(t).getShort("lvl");
-
-                    Enchantment enchant = Enchantment.getEnchantmentByID(j);
-
-                    if (enchant != null)
-                    {
-                        if (t > 0)
-						{
-							enchants.append(", ");
-						}
-
-                        enchants.append(enchant.getTranslatedName(k));
-                    }
-                }
-
-                String shownEnchants = enchants.toString();
-
-                if (this.xBase < 0)
-                {
-                    shownEnchants = this.fontRenderer.trimStringToWidth(shownEnchants, -this.xBase - this.textXpos - 5);
-                }
-
-                this.fontRenderer.drawString(shownEnchants,
-                        this.xBase + this.textXpos,
-                        i * this.lineHeight - topAdjust + 24,
-                        0xffff00);
-            }
-        }
-
-        RenderHelper.disableStandardItemLighting();
-
-        GlStateManager.color(1f, 1f, 1f, 1f);               // needed so items don't get a text color overlay
-        GlStateManager.enableBlend();
-        this.mc.getTextureManager().bindTexture(ImprovedGuiMerchant.icons);         // arrows; use standard item lighting for them so we need a separate loop
-
-        for (int i = 0; i < trades.size(); i++)
-        {
-            MerchantRecipe trade = trades.get(i);
-
-            if (!trade.isRecipeDisabled() &&
-				this.inputSlotsAreEmpty() &&
-				this.hasEnoughItemsInInventory(trade) &&
-				this.canReceiveOutput(trade.getItemToSell()))
-            {
-                this.drawTexturedModalRect(this.xBase + this.okNokXpos,
-                        i * this.lineHeight - topAdjust + this.titleDistance,
-                        6 * 18,
-                        2 * 18,
-                        18,
-                        18);   // green arrow right
-            }
-            else if (!trade.isRecipeDisabled())
-            {
-                this.drawTexturedModalRect(this.xBase + this.okNokXpos,
-                	i * this.lineHeight - topAdjust + this.titleDistance,
-                	5 * 18,
-                	3 * 18,
-         			18,
-					18);       // empty arrow right
-            }
-            else
-            {
-                this.drawTexturedModalRect(this.xBase + this.okNokXpos,
-                        i * this.lineHeight - topAdjust + this.titleDistance,
-                        12 * 18,
-                        3 * 18,
-                        18,
-                        18);      // red X
-            }
-        }
-
-// tooltips
-
-        for (int i = 0; i < trades.size(); i++)
-        {
-            MerchantRecipe trade = trades.get(i);
-            ItemStack i1 = trade.getItemToBuy();
-            ItemStack i2 = trade.hasSecondItemToBuy() ? trade.getSecondItemToBuy() : null;
-            ItemStack o1 = trade.getItemToSell();
-			this.drawTooltip(i1, this.xBase + this.firstBuyItemXpos, i * this.lineHeight - topAdjust + this.titleDistance, mouseX, mouseY);
-			this.drawTooltip(i2, this.xBase + this.secondBuyItemXpos, i * this.lineHeight - topAdjust + this.titleDistance, mouseX, mouseY);
-			this.drawTooltip(o1, this.xBase + this.sellItemXpos, i * this.lineHeight - topAdjust + this.titleDistance, mouseX, mouseY);
-        }
-	}
-
-
-
-	@Override
-	protected void mouseClicked(final int mouseX, final int mouseY, final int mouseButton) throws IOException
-	{
-		MerchantRecipeList trades = this.getMerchant().getRecipes(null);
-
-		if (trades == null)
-		{
-			return;
-		}
-
-		int numTrades = trades.size();
-		int topAdjust = this.getTopAdjust(numTrades);
-
-		// System.out.println("click at "+mouseX+"/"+mouseY);
-
-		if (mouseButton == 0 &&
-				(mouseX - this.guiLeft) >= this.xBase &&
-				(mouseX - this.guiLeft) <= this.xBase + this.textXpos &&
-				(mouseY - this.guiTop) >= -topAdjust + this.titleDistance)
-		{
-			int tradeIndex = (mouseY + topAdjust - this.guiTop - this.titleDistance) / this.lineHeight;
-
-			if (tradeIndex >= 0 && tradeIndex < numTrades)
-			{
-				// System.out.println("tradeIndex="+tradeIndex+", numTrades="+numTrades);
-				GuiButton myNextButton = this.buttonList.get(0);
-				GuiButton myPrevButton = this.buttonList.get(1);
-
-				for (int i = 0; i < numTrades; i++)
-				{
-					this.actionPerformed(myPrevButton);
-				}
-
-				for (int i = 0; i < tradeIndex; i++)
-				{
-					this.actionPerformed(myNextButton);
-				}
-
-				MerchantRecipe recipe = trades.get(tradeIndex);
-
-				if (this.sellAllCheckbox.isChecked())
-				{
-					while (!recipe.isRecipeDisabled() &&
-							this.inputSlotsAreEmpty() &&
-							this.hasEnoughItemsInInventory(recipe) &&
-							this.canReceiveOutput(recipe.getItemToSell()))
-					{
-						this.transact(recipe);
-					}
-				}
-				else
-				{
-					if (!recipe.isRecipeDisabled() &&
-							this.inputSlotsAreEmpty() &&
-							this.hasEnoughItemsInInventory(recipe) &&
-							this.canReceiveOutput(recipe.getItemToSell()))
-					{
-						this.transact(recipe);
-					}
-				}
-			}
-		}
-		else
-		{
-			super.mouseClicked(mouseX, mouseY, mouseButton);
-		}
-	}
-
-
-	private int getTopAdjust(int numTrades)
-	{
-		int topAdjust = ((numTrades * this.lineHeight + this.titleDistance) - this.ySize) / 2;
-
-		if (topAdjust < 0)
-		{
-			topAdjust = 0;
-		}
-
-		return topAdjust;
-	}
-
-
-	private void drawItem(ItemStack stack, int x, int y)
-	{
-		if (stack == null)
-		{
-			return;
-		}
-
-		this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
-		this.itemRender.renderItemOverlays(this.fontRenderer, stack, x, y);
-	}
-
-
-	private void drawTooltip(ItemStack stack, int x, int y, int mousex, int mousey)
-	{
-		if (stack == null)
-		{
-			return;
-		}
-
-		mousex -= this.guiLeft;
-		mousey -= this.guiTop;
-
-		if (mousex >= x && mousex <= x + 16 && mousey >= y && mousey <= y + 16)
-		{
-			this.renderToolTip(stack, mousex, mousey);
-		}
-	}
-
-
-
-	//------------------------------------------------------------------------------------------------------------------
-	// Section: Processing Trading Operations
-	//------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// Section: Process Trading operation
+// ---------------------------------------------------------------------
 
 
 	/**
 	 * This method process trading. It selects correct recipe (by recipe index) and
 	 * uses it, if it is possible.
 	 * @param recipeIndex Index of recipe that should be used.
-	 * @throws IOException
+	 * @throws IOException Exception.
 	 */
 	private void processRecipeTrading(int recipeIndex) throws IOException
 	{
@@ -456,7 +194,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * 		<code>true</code> if all slots is empty.
 	 * 		<code>false</code> if at least one slot is not empty.
 	 */
-	private boolean inputSlotsAreEmpty()
+	public boolean inputSlotsAreEmpty()
 	{
 		return !this.inventorySlots.getSlot(0).getHasStack() &&
 			!this.inventorySlots.getSlot(1).getHasStack() &&
@@ -471,7 +209,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * 		<code>true</code> if user has enough items to use current recipe.
 	 * 		<code>false</code> if user has not enough items to use current recipe.
 	 */
-	private boolean hasEnoughItemsInInventory(MerchantRecipe recipe)
+	public boolean hasEnoughItemsInInventory(MerchantRecipe recipe)
 	{
 		if (!this.hasEnoughItemsInInventory(recipe.getItemToBuy()))
 		{
@@ -550,7 +288,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * 		<code>true</code> if user's inventory has space for trading output.
 	 * 		<code>false</code> if user's inventory cannot accept trading output.
 	 */
-	private boolean canReceiveOutput(ItemStack stack)
+	public boolean canReceiveOutput(ItemStack stack)
 	{
 		int remaining = stack.getCount();
 
@@ -749,11 +487,45 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
-	//------------------------------------------------------------------------------------------------------------------
-	// Section: Public Methods
-	//------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// Section: Getters
+// ---------------------------------------------------------------------
+
+	/**
+	 * This method returns current gui item render.
+	 * @return RenderItem object for current Gui.
+	 */
+	public RenderItem getItemRender()
+	{
+		return this.itemRender;
+	}
 
 
+	/**
+	 * This method returns current gui font render.
+	 * @return FontRenderer object for current Gui.
+	 */
+	public FontRenderer getFontRender()
+	{
+		return this.fontRenderer;
+	}
+
+
+	/**
+	 * This method returns recipes from current merchant.
+	 * @return MerchantRecipeList object that contains all recipes for current merchant.
+	 */
+	public MerchantRecipeList getRecipes()
+	{
+		return this.getMerchant().getRecipes(null);
+	}
+
+
+	/**
+	 * This method returns recipe with given recipe index.
+	 * @param recipeIndex Index of recipe that should be returned.
+	 * @return MerchantRecipe from MerchantRecipes or null, if recipe does not exist.
+	 */
 	public MerchantRecipe getMerchantRecipe(int recipeIndex)
 	{
 		MerchantRecipeList merchantRecipeList = this.getRecipes();
@@ -770,39 +542,47 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
-	public RenderItem getItemRender()
-	{
-		return this.itemRender;
-	}
+// ---------------------------------------------------------------------
+// Section: Other methods
+// ---------------------------------------------------------------------
 
 
-	public FontRenderer getFontRender()
-	{
-		return this.fontRenderer;
-	}
-
-
-	public MerchantRecipeList getRecipes()
-	{
-		return this.getMerchant().getRecipes(null);
-	}
-
-
-	public void addRecipeButton(RecipeButton button)
+	/**
+	 * This method adds given IRecipeButton to buttonList.
+	 * @param button New Recipe Button.
+	 */
+	public void addRecipeButton(IRecipeButton button)
 	{
 		this.buttonList.add(button);
 	}
 
 
+	/**
+	 * This method removes given IRecipeButton to buttonList.
+	 * @param button Recipe Button that must be removed.
+	 */
 	public void removeRecipeButton(RecipeButton button)
 	{
 		this.buttonList.remove(button);
 	}
 
 
-    //------------------------------------------------------------------------------------------------------------------
-    // Section: Variables
-    //------------------------------------------------------------------------------------------------------------------
+	/**
+	 * This method calls toolTip rendering for given item stack in given X and Y position.
+	 * @param itemStack ItemStack which tooltip must be rendered.
+	 * @param x Tooltip X position.
+	 * @param y Tooltip Y position.
+	 */
+	public void callToolTipRendering(ItemStack itemStack, int x, int y)
+	{
+		this.renderToolTip(itemStack, x, y);
+	}
+
+
+ // ---------------------------------------------------------------------
+ // Section: Variables
+ // ---------------------------------------------------------------------
+
 
 	/**
 	 * This is original Merchant Gui button.
@@ -817,24 +597,8 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 	private CheckBoxButton sellAllCheckbox;
 
+	/**
+	 * Panel with recipe buttons.
+	 */
     private ButtonPanel buttonPanel;
-
-    private int xBase = 0;
-
-    private final int lineHeight = 18;
-
-    private final int titleDistance = 20;
-
-    private final int firstBuyItemXpos = 0;
-
-    private final int secondBuyItemXpos = 18;
-
-    private final int okNokXpos = 40;
-
-    private final int sellItemXpos = 60;
-
-    private final int textXpos = 85;
-
-
-	private static final ResourceLocation icons = new ResourceLocation(EasierVillagerTrading.MODID, "textures/icons.png");
 }
