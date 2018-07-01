@@ -14,6 +14,7 @@ public abstract class IRecipeButton extends GuiButton
 
 	/**
 	 * Simple constructor that inits GuiButton and sets recipeIndex and merchantGui.
+	 *
 	 * @param buttonId Unique button index.
 	 * @param x Position on X axis.
 	 * @param y Position on Y axis.
@@ -21,19 +22,29 @@ public abstract class IRecipeButton extends GuiButton
 	 * @param heightIn Button height.
 	 * @param recipeIndex Recipe Index.
 	 * @param merchantGui ImprovedMerchantGui.
+	 * @param firstBuyItemOffset First Item offset.
+	 * @param secondBuyItemOffset Second Item offset.
+	 * @param sellItemOffset Sell Item Offset.
 	 */
 	protected IRecipeButton(int buttonId,
-						 int x,
-						 int y,
-						 int widthIn,
-						 int heightIn,
-						 int recipeIndex,
-						 ImprovedGuiMerchant merchantGui)
+		int x,
+		int y,
+		int widthIn,
+		int heightIn,
+		int recipeIndex,
+		ImprovedGuiMerchant merchantGui,
+		int firstBuyItemOffset,
+		int secondBuyItemOffset,
+		int sellItemOffset)
 	{
 		super(buttonId, x, y, widthIn, heightIn, "");
 
 		this.recipeIndex = recipeIndex;
 		this.merchantGui = merchantGui;
+
+		this.firstBuyItemOffset = firstBuyItemOffset;
+		this.secondBuyItemOffset = secondBuyItemOffset;
+		this.sellItemOffset = sellItemOffset;
 	}
 
 
@@ -44,6 +55,7 @@ public abstract class IRecipeButton extends GuiButton
 
 	/**
 	 * This method calls ToolTip updating for button with current mouse location.
+	 *
 	 * @param mouseX Mouse X location.
 	 * @param mouseY Mouse Y location.
 	 */
@@ -52,13 +64,13 @@ public abstract class IRecipeButton extends GuiButton
 
 	/**
 	 * This method returns current button recipe index.
+	 *
 	 * @return Integer that represents recipe ID.
 	 */
 	public int getRecipeIndex()
 	{
 		return this.recipeIndex;
 	}
-
 
 
 	// ---------------------------------------------------------------------
@@ -68,6 +80,7 @@ public abstract class IRecipeButton extends GuiButton
 
 	/**
 	 * This method draws tool tip for current ItemStack if mouseX and mouseY is over ItemStack.
+	 *
 	 * @param stack ItemStack which tool tip must be drawed.
 	 * @param x ItemStack X position.
 	 * @param y ItemStack Y position.
@@ -90,13 +103,18 @@ public abstract class IRecipeButton extends GuiButton
 
 	/**
 	 * This method renders given ItemStack in given X and Y position.
+	 *
 	 * @param itemStack ItemStack that must be rendered.
 	 * @param itemRender RenderItem object.
 	 * @param fontRender FontRender object.
 	 * @param x ItemStack X position.
 	 * @param y ItemStack Y position.
 	 */
-	protected void renderItem(ItemStack itemStack, RenderItem itemRender, FontRenderer fontRender, int x, int y)
+	protected void renderItem(ItemStack itemStack,
+		RenderItem itemRender,
+		FontRenderer fontRender,
+		int x,
+		int y)
 	{
 		if (itemStack != null)
 		{
@@ -123,17 +141,17 @@ public abstract class IRecipeButton extends GuiButton
 	/**
 	 * This variable holds first buy item offset size.
 	 */
-	protected int firstBuyItemOffset;
+	protected final int firstBuyItemOffset;
 
 	/**
 	 * This variable holds second buy item offset size.
 	 */
-	protected int secondBuyItemOffset;
+	protected final int secondBuyItemOffset;
 
 	/**
 	 * This variable holds sell item offset size.
 	 */
-	protected int sellItemOffset;
+	protected final int sellItemOffset;
 
 
 	// ---------------------------------------------------------------------
