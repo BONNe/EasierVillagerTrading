@@ -40,17 +40,15 @@ public class ButtonPanel
 	 */
 	private void initPanel()
 	{
-		// TODO: Read side from Configuration.
 		int side = 1;
-
-		// TODO: Read distance from Configuration.
 		int offsetFromMainPanel = 5;
 
-		// TODO: Read distances from Configuration.
 		int offsetFromWindowsTopSide = 5;
 		int offsetFromWindowsBottomSide = 5;
 		int offsetFromWindowRightSide = 5;
 		int offsetFromWindowLeftSide = 5;
+
+		boolean alignWithGUI = true;
 
 		int merchantGuiLeftSide = this.merchantGui.getGuiLeft();
 		int merchantGuiTopSide = this.merchantGui.getGuiTop();
@@ -61,30 +59,59 @@ public class ButtonPanel
 		int windowWidth = this.merchantGui.width;
 		int windowHeight = this.merchantGui.height;
 
+		int pageIndexingWidth = 56;
+		int pageIndexingHeight = 15;
+
 		if (side == LEFT_SIDE)
 		{
 			this.width = merchantGuiLeftSide - offsetFromMainPanel - offsetFromWindowLeftSide;
-			this.height = windowHeight - merchantGuiTopSide - offsetFromWindowsBottomSide;
-
 			this.xPosition = offsetFromWindowLeftSide;
-			this.yPosition = merchantGuiTopSide;
+
+			if (alignWithGUI)
+			{
+				this.height = merchantGuiHeight;
+				this.yPosition = merchantGuiTopSide;
+			}
+			else
+			{
+				this.height = windowHeight - offsetFromWindowsTopSide -
+					offsetFromWindowsBottomSide - pageIndexingHeight;
+				this.yPosition = offsetFromWindowsTopSide + pageIndexingHeight;
+			}
 		}
 		else if (side == RIGHT_SIDE)
 		{
-			// TODO: Probably not correct. I assume that left and right side are with equal size.
 			this.width = merchantGuiLeftSide - offsetFromMainPanel - offsetFromWindowRightSide;
-			this.height = windowHeight - merchantGuiTopSide - offsetFromWindowsBottomSide;
-
 			this.xPosition = merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel;
-			this.yPosition = merchantGuiTopSide;
+
+			if (alignWithGUI)
+			{
+				this.height = merchantGuiHeight;
+				this.yPosition = merchantGuiTopSide;
+			}
+			else
+			{
+				this.height = windowHeight - offsetFromWindowsTopSide -
+					offsetFromWindowsBottomSide - pageIndexingHeight;
+				this.yPosition = offsetFromWindowsTopSide + pageIndexingHeight;
+			}
 		}
 		else if (side == TOP_SIDE)
 		{
-			this.width = windowWidth - offsetFromWindowLeftSide - offsetFromWindowsBottomSide;
 			this.height = merchantGuiTopSide - offsetFromWindowsTopSide - offsetFromMainPanel;
-
-			this.xPosition = offsetFromWindowLeftSide;
 			this.yPosition = offsetFromWindowsTopSide;
+
+			if (alignWithGUI)
+			{
+				this.width = merchantGuiWidth;
+				this.xPosition = merchantGuiLeftSide;
+			}
+			else
+			{
+				this.xPosition = offsetFromWindowLeftSide + pageIndexingWidth;
+				this.width = windowWidth - offsetFromWindowLeftSide -
+					offsetFromWindowsBottomSide - pageIndexingWidth;
+			}
 		}
 		else
 		{
@@ -99,10 +126,28 @@ public class ButtonPanel
 		}
 
 		// Add new PageButtons above current button panel.
-		this.previousPageButton =
-			new PageButton(this.lastUnusedButtonId++, this.xPosition, this.yPosition - 15, false);
-		this.nextPageButton =
-			new PageButton(this.lastUnusedButtonId++, this.xPosition + 46, this.yPosition - 15, true);
+		if (side != TOP_SIDE)
+		{
+			this.previousPageButton = new PageButton(this.lastUnusedButtonId++,
+				this.xPosition,
+				this.yPosition - pageIndexingHeight,
+				false);
+			this.nextPageButton = new PageButton(this.lastUnusedButtonId++,
+				this.xPosition + pageIndexingWidth - 10,
+				this.yPosition - pageIndexingHeight,
+				true);
+		}
+		else
+		{
+			this.previousPageButton = new PageButton(this.lastUnusedButtonId++,
+				this.xPosition - pageIndexingWidth,
+				this.yPosition + this.height / 2,
+				false);
+			this.nextPageButton = new PageButton(this.lastUnusedButtonId++,
+				this.xPosition - pageIndexingWidth,
+				this.yPosition + this.height / 2,
+				true);
+		}
 
 		this.merchantGui.addGuiButton(this.previousPageButton);
 		this.merchantGui.addGuiButton(this.nextPageButton);
