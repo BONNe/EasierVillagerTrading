@@ -328,6 +328,24 @@ public class ButtonPanel
 
 				this.previousPageButton.enabled = this.currentPageIndex != 0;
 				this.nextPageButton.enabled = this.currentPageIndex < this.maxPageCount - 1;
+
+				// Page index String
+				String pageIndexString = (this.currentPageIndex + 1) + " / " + this.maxPageCount;
+
+				int stringWidth = this.merchantGui.getFontRender().getStringWidth(pageIndexString);
+				int xPosition = this.previousPageButton.x + (this.nextPageButton.x -
+					this.previousPageButton.x + this.previousPageButton.width - stringWidth) / 2;
+				int stringHeight = this.merchantGui.getFontRender().FONT_HEIGHT;
+				int yPosition = this.previousPageButton.y +
+					(this.previousPageButton.height - stringHeight) / 2;
+
+				// TODO: Probably User want to change color manually?
+				int fontColor = 0xffffff;
+
+				this.merchantGui.getFontRender().drawString(pageIndexString,
+					xPosition,
+					yPosition,
+					fontColor);
 			}
 
 			this.previousPageButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
