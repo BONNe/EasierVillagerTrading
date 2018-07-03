@@ -4,6 +4,7 @@ package lv.id.bonne.easiervillagertrading;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
 import lv.id.bonne.easiervillagertrading.buttons.PageButton;
 import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeButton;
@@ -40,15 +41,15 @@ public class ButtonPanel
 	 */
 	private void initPanel()
 	{
-		int side = 1;
-		int offsetFromMainPanel = 5;
+		int side = ConfigurationHandler.getPanelSide();
+		int offsetFromMainPanel = ConfigurationHandler.getOffsetFromGUI();
 
-		int offsetFromWindowsTopSide = 5;
-		int offsetFromWindowsBottomSide = 5;
-		int offsetFromWindowRightSide = 5;
-		int offsetFromWindowLeftSide = 5;
+		int offsetFromWindowsTopSide = ConfigurationHandler.getOffsetFromTopSide();
+		int offsetFromWindowsBottomSide = ConfigurationHandler.getOffsetFromBottomSide();
+		int offsetFromWindowRightSide = ConfigurationHandler.getOffsetFromRightSide();
+		int offsetFromWindowLeftSide = ConfigurationHandler.getOffsetFromLeftSide();
 
-		boolean alignWithGUI = true;
+		boolean alignWithGUI = ConfigurationHandler.alignWithGUI();;
 
 		int merchantGuiLeftSide = this.merchantGui.getGuiLeft();
 		int merchantGuiTopSide = this.merchantGui.getGuiTop();
@@ -182,8 +183,7 @@ public class ButtonPanel
 	 */
 	private void validateButtonType()
 	{
-		// TODO: Get button type from Configuration
-		this.buttonType = 2;
+		this.buttonType = ConfigurationHandler.getButtonType();
 
 		if (this.width < 58 || this.height < 20)
 		{
