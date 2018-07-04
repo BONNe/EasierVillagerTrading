@@ -262,7 +262,7 @@ public class ButtonPanel
 
 			if (this.elementsPerPage < size)
 			{
-				this.maxPageCount = size / this.elementsPerPage;
+				this.maxPageCount = (int) Math.ceil((double) size / this.elementsPerPage);
 			}
 
 			// process button layout
@@ -333,7 +333,7 @@ public class ButtonPanel
 	{
 		if (this.showButtons)
 		{
-			if (this.tradingButtons.size() < this.elementsPerPage)
+			if (this.tradingButtons.size() <= this.elementsPerPage)
 			{
 				// Single page. Easy.
 
