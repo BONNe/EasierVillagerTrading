@@ -141,12 +141,12 @@ public class ButtonPanel
 		else
 		{
 			this.previousPageButton = new PageButton(this.lastUnusedButtonId++,
-				this.xPosition - pageIndexingWidth,
-				this.yPosition + this.height / 2,
+				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel,
+				merchantGuiTopSide + offsetFromMainPanel,
 				false);
 			this.nextPageButton = new PageButton(this.lastUnusedButtonId++,
-				this.xPosition - pageIndexingWidth,
-				this.yPosition + this.height / 2,
+				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel + pageIndexingWidth - 10,
+				merchantGuiTopSide + offsetFromMainPanel,
 				true);
 		}
 
@@ -257,8 +257,7 @@ public class ButtonPanel
 			int buttonWidth = this.buttonType == IRecipeButton.BUTTON_TYPE_COMPACT ? 58 : 80;
 
 			// process paging
-
-			this.elementsPerPage = this.maxColumnCount * this.height / 20;
+			this.elementsPerPage = this.maxColumnCount * (int) Math.floor((double) this.height / 20);
 
 			if (this.elementsPerPage < size)
 			{
@@ -391,6 +390,9 @@ public class ButtonPanel
 					xPosition,
 					yPosition,
 					fontColor);
+
+				this.nextPageButton.visible = true;
+				this.previousPageButton.visible = true;
 			}
 
 			this.previousPageButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
