@@ -139,11 +139,25 @@ public class ButtonPanel
 				this.yPosition - pageIndexingHeight,
 				true);
 
-			this.sellAllCheckbox = new CheckBoxButton(this.lastUnusedButtonId++,
-				this.xPosition + pageIndexingWidth + 10,
-				this.yPosition - pageIndexingHeight,
-				"Sell All Items",
-				ConfigurationHandler.isDefaultSellAll());
+			if (side == LEFT_SIDE)
+			{
+				this.sellAllCheckbox = new CheckBoxButton(this.lastUnusedButtonId++,
+					merchantGuiLeftSide + 5,
+					merchantGuiTopSide - pageIndexingHeight,
+					"Sell All Items",
+					ConfigurationHandler.isDefaultSellAll());
+			}
+			else
+			{
+				int buttonWidth =
+					this.merchantGui.getFontRender().getStringWidth("Sell All Items") + 15;
+
+				this.sellAllCheckbox = new CheckBoxButton(this.lastUnusedButtonId++,
+					merchantGuiLeftSide + merchantGuiWidth - buttonWidth,
+					merchantGuiTopSide - pageIndexingHeight,
+					"Sell All Items",
+					ConfigurationHandler.isDefaultSellAll());
+			}
 		}
 		else
 		{
@@ -158,7 +172,7 @@ public class ButtonPanel
 
 			this.sellAllCheckbox = new CheckBoxButton(this.lastUnusedButtonId++,
 				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel,
-				merchantGuiTopSide + offsetFromMainPanel + 10,
+				merchantGuiTopSide + offsetFromMainPanel + pageIndexingHeight + 2,
 				"Sell All Items",
 				ConfigurationHandler.isDefaultSellAll());
 		}
@@ -364,6 +378,13 @@ public class ButtonPanel
 
 				this.nextPageButton.visible = false;
 				this.previousPageButton.visible = false;
+
+				// Push up sellAllCheckBox, as index buttons are not visible.
+				if (ConfigurationHandler.getPanelSide() == TOP_SIDE)
+				{
+					this.sellAllCheckbox.y = this.merchantGui.getGuiTop() +
+						ConfigurationHandler.getOffsetFromGUI();
+				}
 			}
 			else
 			{
@@ -406,6 +427,14 @@ public class ButtonPanel
 					xPosition,
 					yPosition,
 					fontColor);
+
+				if (ConfigurationHandler.getPanelSide() == TOP_SIDE &&
+					this.sellAllCheckbox.y <
+						(this.nextPageButton.y + this.nextPageButton.height))
+				{
+					this.sellAllCheckbox.y =
+						this.nextPageButton.y + this.nextPageButton.height + 2;
+				}
 
 				this.nextPageButton.visible = true;
 				this.previousPageButton.visible = true;
