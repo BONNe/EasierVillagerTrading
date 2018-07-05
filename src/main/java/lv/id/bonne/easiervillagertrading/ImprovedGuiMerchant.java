@@ -5,9 +5,8 @@
  */
 package lv.id.bonne.easiervillagertrading;
 
-import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
-import lv.id.bonne.easiervillagertrading.buttons.CheckBoxButton;
-import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
+import org.lwjgl.input.Keyboard;
+
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
@@ -54,24 +53,6 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		this.previousRecipeButton = this.buttonList.get(1);
 
 		this.buttonPanel = new ButtonPanel(this);
-
-		if (ConfigurationHandler.showLeft())
-		{
-			this.sellAllCheckbox = new CheckBoxButton(991,
-				this.getGuiLeft() - 20,
-				this.guiTop - 15, "Sell All Items",
-				ConfigurationHandler.isDefaultSellAll());
-		}
-		else
-		{
-			this.sellAllCheckbox = new CheckBoxButton(991,
-				this.getGuiLeft() + this.getXSize(),
-				this.guiTop - 15, "Sell All Items",
-				ConfigurationHandler.isDefaultSellAll());
-		}
-
-		this.addButton(this.sellAllCheckbox);
-		this.sellAllCheckbox.enabled = true;
 	}
 
 
@@ -108,11 +89,6 @@ public class ImprovedGuiMerchant extends GuiMerchant
 			else
 			{
 				this.buttonPanel.actionPerformed(guiButton);
-			}
-
-			if (guiButton == this.sellAllCheckbox)
-			{
-				this.sellAllCheckbox.processButton();
 			}
 		}
 	}
@@ -167,7 +143,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 			MerchantRecipe recipe = trades.get(recipeIndex);
 
-			if (this.sellAllCheckbox.isChecked())
+			if (this.sellAll())
 			{
 				while (!recipe.isRecipeDisabled() &&
 					this.inputSlotsAreEmpty() &&
@@ -582,6 +558,19 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
+	/**
+	 * This method returns if checkBox sellAll is enabled or user holds SHIFT button.
+	 * @return
+	 * 		<code>true</code> if user holds SHIFT or CheckBox sellAll is enabled.
+	 * 		<code>false</code> otherwise.
+	 */
+	private boolean sellAll()
+	{
+		return this.buttonPanel.isSellAllChecked() ||
+			Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) ||
+			Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
+	}
+
  // ---------------------------------------------------------------------
  // Section: Variables
  // ---------------------------------------------------------------------
@@ -596,9 +585,6 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * This is original Merchant Gui button
 	 */
 	private GuiButton previousRecipeButton;
-
-
-	private CheckBoxButton sellAllCheckbox;
 
 	/**
 	 * Panel with recipe buttons.

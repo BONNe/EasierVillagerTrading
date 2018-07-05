@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
+import lv.id.bonne.easiervillagertrading.buttons.CheckBoxButton;
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
 import lv.id.bonne.easiervillagertrading.buttons.PageButton;
 import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeButton;
@@ -137,6 +138,12 @@ public class ButtonPanel
 				this.xPosition + pageIndexingWidth - 10,
 				this.yPosition - pageIndexingHeight,
 				true);
+
+			this.sellAllCheckbox = new CheckBoxButton(this.lastUnusedButtonId++,
+				this.xPosition + pageIndexingWidth + 10,
+				this.yPosition - pageIndexingHeight,
+				"Sell All Items",
+				ConfigurationHandler.isDefaultSellAll());
 		}
 		else
 		{
@@ -148,10 +155,19 @@ public class ButtonPanel
 				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel + pageIndexingWidth - 10,
 				merchantGuiTopSide + offsetFromMainPanel,
 				true);
+
+			this.sellAllCheckbox = new CheckBoxButton(this.lastUnusedButtonId++,
+				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel,
+				merchantGuiTopSide + offsetFromMainPanel + 10,
+				"Sell All Items",
+				ConfigurationHandler.isDefaultSellAll());
 		}
 
 		this.merchantGui.addGuiButton(this.previousPageButton);
 		this.merchantGui.addGuiButton(this.nextPageButton);
+		this.merchantGui.addGuiButton(this.sellAllCheckbox);
+
+		this.sellAllCheckbox.visible = true;
 
 		this.validateButtonType();
 
@@ -450,6 +466,22 @@ public class ButtonPanel
 		{
 			this.currentPageIndex--;
 		}
+		else if (button == this.sellAllCheckbox)
+		{
+			this.sellAllCheckbox.processButton();
+		}
+	}
+
+
+	/**
+	 * This method returns if sellAllCheckbox isChecked.
+	 * @return
+	 * 		<code>true</code> if sellAllCheckbox is checked.
+	 * 		<code>false</code> if sellAllCheckbox is not checked.
+	 */
+	public boolean isSellAllChecked()
+	{
+		return this.sellAllCheckbox.enabled && this.sellAllCheckbox.isChecked();
 	}
 
 
@@ -532,6 +564,11 @@ public class ButtonPanel
 	 * This button allows to get previous recipe button page.
 	 */
 	private PageButton previousPageButton;
+
+	/**
+	 * This button allows to use recipe till all items are sold or recipe is not available.
+	 */
+	private CheckBoxButton sellAllCheckbox;
 
 // ---------------------------------------------------------------------
 // Section: Constants
