@@ -1,6 +1,7 @@
 package lv.id.bonne.easiervillagertrading.buttons;
 
 import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.RenderItem;
@@ -70,6 +71,21 @@ public abstract class IRecipeButton extends GuiButton
 	public int getRecipeIndex()
 	{
 		return this.recipeIndex;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void drawButton(Minecraft minecraft,
+		int mouseX,
+		int mouseY,
+		float partialTicks)
+	{
+		this.enabled = !this.merchantGui.getMerchantRecipe(this.recipeIndex).isRecipeDisabled();
+
+		super.drawButton(minecraft, mouseX, mouseY, partialTicks);
 	}
 
 
