@@ -12,6 +12,7 @@ import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeButton;
 import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeTextButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.village.MerchantRecipeList;
 
 
@@ -362,6 +363,8 @@ public class ButtonPanel
 	{
 		if (this.showButtons)
 		{
+			RenderHelper.enableGUIStandardItemLighting();
+
 			if (this.tradingButtons.size() <= this.elementsPerPage)
 			{
 				// Single page. Easy.
