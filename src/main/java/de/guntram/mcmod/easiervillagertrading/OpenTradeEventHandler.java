@@ -1,5 +1,6 @@
 package de.guntram.mcmod.easiervillagertrading;
 
+import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -24,7 +25,7 @@ public class OpenTradeEventHandler
     {
         if (event.getGui() instanceof GuiMerchant)
         {
-            event.setGui(new BetterGuiMerchant(this.mc.player.inventory, (GuiMerchant) event.getGui(), this.mc.world));
+            event.setGui(new ImprovedGuiMerchant(this.mc.player.inventory, (GuiMerchant) event.getGui(), this.mc.world));
         }
     }
 
