@@ -120,6 +120,14 @@ public class ConfigurationHandler
             "How many pixels from Left side of the Window the trades list will be shown. " +
                 "If aligning with GUI is enabled, then this option is ignored for Top button position.");
 
+        this.delayBetweenActions = this.config.getInt("MS Delay between Actions",
+            Configuration.CATEGORY_CLIENT,
+            100,
+            0,
+            10000,
+            "This allows to bypass NoCheatPlus defense. Recipes will be processed slower, but +" +
+                "they will work.");
+
         if (this.config.hasChanged())
         {
             this.config.save();
@@ -281,6 +289,16 @@ public class ConfigurationHandler
     }
 
 
+    /**
+     * This method returns integer that indicate a delay between automated mouse click actions.
+     * @return integer that represents milliseconds which will be used in delay between mouse clicks.
+     */
+    public static int getDelayBetweenActions()
+    {
+        return ConfigurationHandler.getInstance().delayBetweenActions;
+    }
+
+
 // ---------------------------------------------------------------------
 // Section: Setters
 // ---------------------------------------------------------------------
@@ -362,6 +380,11 @@ public class ConfigurationHandler
      * Integer that stores minimal distance from Games Window Left Side till button panel.
      */
     private int offsetFromLeftSide;
+
+    /**
+     * Integer that stores milliseconds delay between actions.
+     */
+    private int delayBetweenActions;
 
 // ---------------------------------------------------------------------
 // Section: Constants

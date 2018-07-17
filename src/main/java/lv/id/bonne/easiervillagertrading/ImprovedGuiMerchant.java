@@ -7,18 +7,24 @@ package lv.id.bonne.easiervillagertrading;
 
 import org.lwjgl.input.Keyboard;
 
+import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -84,7 +90,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 			if (this.buttonPanel.isRecipeButton(guiButton))
 			{
-				this.processRecipeTrading(this.buttonPanel.getRecipeFromButton(guiButton));
+				this.startRecipeTrading(this.buttonPanel.getRecipeFromButton(guiButton));
 			}
 			else
 			{
@@ -117,7 +123,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * @param recipeIndex Index of recipe that should be used.
 	 * @throws IOException Exception.
 	 */
-	private void processRecipeTrading(int recipeIndex) throws IOException
+	private void startRecipeTrading(int recipeIndex) throws IOException
 	{
 		MerchantRecipeList trades = this.getRecipes();
 
@@ -143,26 +149,17 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 			MerchantRecipe recipe = trades.get(recipeIndex);
 
-			if (this.sellAll())
+			if (this.processingThread != null && this.processingThread.isAlive())
 			{
-				while (!recipe.isRecipeDisabled() &&
-					this.inputSlotsAreEmpty() &&
-					this.hasEnoughItemsInInventory(recipe) &&
-					this.canReceiveOutput(recipe.getItemToSell()))
-				{
-					this.transact(recipe);
-				}
+				// If recipe is already running, then stop it.
+
+				this.processingThread.interrupt();
 			}
-			else
-			{
-				if (!recipe.isRecipeDisabled() &&
-					this.inputSlotsAreEmpty() &&
-					this.hasEnoughItemsInInventory(recipe) &&
-					this.canReceiveOutput(recipe.getItemToSell()))
-				{
-					this.transact(recipe);
-				}
-			}
+
+			this.processingThread = new Thread(
+				new TradingThreadProcessor(this.mc, recipe, this.inventorySlots));
+			this.processingThread.setDaemon(true);
+			this.processingThread.start();
 		}
 	}
 
@@ -299,173 +296,6 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
-	/**
-	 * This method process given recipe trading. It fill and click necessary slots.
-	 * @param recipe MerchantRecipe that must be processed.
-	 */
-	private void transact(MerchantRecipe recipe)
-	{
-		int putBack0 = this.fillSlot(0, recipe.getItemToBuy());
-		int putBack1 = recipe.hasSecondItemToBuy() ?
-			this.fillSlot(1, recipe.getSecondItemToBuy()) : -1;
-
-		// Collect result.
-		this.getSlot(2, recipe.getItemToSell(), putBack0, putBack1);
-
-		// Empty first slot.
-		if (putBack0 != -1)
-		{
-			this.slotClick(0);
-			this.slotClick(putBack0);
-		}
-
-		// Empty second slot.
-		if (putBack1 != -1)
-		{
-			this.slotClick(1);
-			this.slotClick(putBack1);
-		}
-	}
-
-
-	/**
-	 * This method places given ItemStack from trading inventory into user's inventory.
-	 * @param slot  - the number of the (trading) slot that should receive items
-	 * @param stack - what the trading slot should receive
-	 * @return the number of the inventory slot into which these items should be put back
-	 * after the transaction. May be -1 if nothing needs to be put back.
-	 */
-	private int fillSlot(int slot, ItemStack stack)
-	{
-		int remaining = stack.getCount();
-
-		for (int i = this.inventorySlots.inventorySlots.size() - 36;
-			i < this.inventorySlots.inventorySlots.size();
-			i++)
-		{
-			ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
-
-			if (invstack == null)
-			{
-				continue;
-			}
-
-			boolean needPutBack = false;
-
-			if (this.areItemStacksMergable(stack, invstack))
-			{
-				if (stack.getCount() + invstack.getCount() > stack.getMaxStackSize())
-				{
-					needPutBack = true;
-				}
-
-				remaining -= invstack.getCount();
-
-				this.slotClick(i);
-				this.slotClick(slot);
-			}
-
-			if (needPutBack)
-			{
-				this.slotClick(i);
-			}
-
-			if (remaining <= 0)
-			{
-				return remaining < 0 ? i : -1;
-			}
-		}
-
-		// We should not be able to arrive here, since hasEnoughItemsInInventory should
-		// have been called before fillSlot. But if we do, something went wrong; in this
-		// case better do a bit less.
-
-		return -1;
-	}
-
-
-	/**
-	 * @param slot
-	 * @param stack
-	 * @param forbidden
-	 */
-	private void getSlot(int slot, ItemStack stack, int... forbidden)
-	{
-		int remaining = stack.getCount();
-		this.slotClick(slot);
-
-		for (int i = this.inventorySlots.inventorySlots.size() - 36;
-			i < this.inventorySlots.inventorySlots.size();
-			i++)
-		{
-			ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
-
-			if (invstack == null || invstack.isEmpty())
-			{
-				continue;
-			}
-
-			if (this.areItemStacksMergable(stack, invstack) &&
-				invstack.getCount() < invstack.getMaxStackSize())
-			{
-				remaining -= (invstack.getMaxStackSize() - invstack.getCount());
-				this.slotClick(i);
-			}
-
-			if (remaining <= 0)
-			{
-				return;
-			}
-		}
-
-		// When looking for an empty slot, don't take one that we want to put some input
-		// back to.
-
-		for (int i = this.inventorySlots.inventorySlots.size() - 36;
-			i < this.inventorySlots.inventorySlots.size();
-			i++)
-		{
-			boolean isForbidden = false;
-
-			for (int f : forbidden)
-			{
-				if (i == f)
-				{
-					isForbidden = true;
-				}
-			}
-
-			if (isForbidden)
-			{
-				continue;
-			}
-
-			ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
-
-			if (invstack == null || invstack.isEmpty())
-			{
-				this.slotClick(i);
-
-				return;
-			}
-		}
-	}
-
-
-	/**
-	 * This method process slot clicking operation.
-	 * @param slot Integer that represents slot in inventory that must be clicked.
-	 */
-	private void slotClick(int slot)
-	{
-		this.mc.playerController.windowClick(this.mc.player.openContainer.windowId,
-			slot,
-			0,
-			ClickType.PICKUP,
-			this.mc.player);
-	}
-
-
 // ---------------------------------------------------------------------
 // Section: Getters
 // ---------------------------------------------------------------------
@@ -537,16 +367,6 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 
 	/**
-	 * This method removes given IRecipeButton to buttonList.
-	 * @param button Recipe Button that must be removed.
-	 */
-	public void removeButton(GuiButton button)
-	{
-		this.buttonList.remove(button);
-	}
-
-
-	/**
 	 * This method calls toolTip rendering for given item stack in given X and Y position.
 	 * @param itemStack ItemStack which tooltip must be rendered.
 	 * @param x Tooltip X position.
@@ -558,23 +378,288 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
+// ---------------------------------------------------------------------
+// Section: Trading Thread
+// ---------------------------------------------------------------------
+
+
 	/**
-	 * This method returns if checkBox sellAll is enabled or user holds SHIFT button.
-	 * @return
-	 * 		<code>true</code> if user holds SHIFT or CheckBox sellAll is enabled.
-	 * 		<code>false</code> otherwise.
+	 * This class contains all necessary methods to process trading with merchant.
 	 */
-	private boolean sellAll()
+	private class TradingThreadProcessor implements Runnable
 	{
-		return this.buttonPanel.isSellAllChecked() ||
-			Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) ||
-			Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
+		/**
+		 * Default constructor, that inits all necessary values.
+		 * @param minecraft Game variable.
+		 * @param recipe Recipe that current process should use.
+		 * @param inventorySlots Inventory slots.
+		 */
+		protected TradingThreadProcessor(Minecraft minecraft,
+			MerchantRecipe recipe,
+			Container inventorySlots)
+		{
+			this.minecraft = minecraft;
+			this.recipe = recipe;
+			this.inventorySlots = inventorySlots;
+		}
+
+
+		@Override
+		public void run()
+		{
+			if (this.sellAll())
+			{
+				while (!Thread.currentThread().isInterrupted() &&
+					!this.recipe.isRecipeDisabled() &&
+					ImprovedGuiMerchant.this.inputSlotsAreEmpty() &&
+					ImprovedGuiMerchant.this.hasEnoughItemsInInventory(this.recipe) &&
+					ImprovedGuiMerchant.this.canReceiveOutput(this.recipe.getItemToSell()))
+				{
+					this.transact();
+				}
+			}
+			else
+			{
+				if (!this.recipe.isRecipeDisabled() &&
+					ImprovedGuiMerchant.this.inputSlotsAreEmpty() &&
+					ImprovedGuiMerchant.this.hasEnoughItemsInInventory(this.recipe) &&
+					ImprovedGuiMerchant.this.canReceiveOutput(this.recipe.getItemToSell()))
+				{
+					this.transact();
+				}
+			}
+		}
+
+
+		/**
+		 * This method process given recipe trading. It fill and click necessary slots.
+		 */
+		private void transact()
+		{
+			int putBack0 = this.fillSlot(0, this.recipe.getItemToBuy());
+			int putBack1 = this.recipe.hasSecondItemToBuy() ?
+				this.fillSlot(1, this.recipe.getSecondItemToBuy()) : -1;
+
+			// Collect result.
+			this.getSlot(2, this.recipe.getItemToSell(), putBack0, putBack1);
+
+			// Empty first slot.
+			if (putBack0 != -1)
+			{
+				this.slotClick(0);
+				this.slotClick(putBack0);
+			}
+
+			// Empty second slot.
+			if (putBack1 != -1)
+			{
+				this.slotClick(1);
+				this.slotClick(putBack1);
+			}
+		}
+
+
+		/**
+		 * This method places given ItemStack from trading inventory into user's inventory.
+		 * @param slot  - the number of the (trading) slot that should receive items
+		 * @param stack - what the trading slot should receive
+		 * @return the number of the inventory slot into which these items should be put back
+		 * after the transaction. May be -1 if nothing needs to be put back.
+		 */
+		private int fillSlot(int slot, ItemStack stack)
+		{
+			int remaining = stack.getCount();
+
+			for (int i = this.inventorySlots.inventorySlots.size() - 36;
+				i < this.inventorySlots.inventorySlots.size();
+				i++)
+			{
+				ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
+
+				if (invstack == null)
+				{
+					continue;
+				}
+
+				boolean needPutBack = false;
+
+				if (ImprovedGuiMerchant.this.areItemStacksMergable(stack, invstack))
+				{
+					if (stack.getCount() + invstack.getCount() > stack.getMaxStackSize())
+					{
+						needPutBack = true;
+					}
+
+					remaining -= invstack.getCount();
+
+					this.slotClick(i);
+					this.slotClick(slot);
+				}
+
+				if (needPutBack)
+				{
+					this.slotClick(i);
+				}
+
+				if (remaining <= 0)
+				{
+					return remaining < 0 ? i : -1;
+				}
+			}
+
+			// We should not be able to arrive here, since hasEnoughItemsInInventory should
+			// have been called before fillSlot. But if we do, something went wrong; in this
+			// case better do a bit less.
+
+			return -1;
+		}
+
+
+		/**
+		 * @param slot
+		 * @param stack
+		 * @param forbidden
+		 */
+		private void getSlot(int slot, ItemStack stack, int... forbidden)
+		{
+			int remaining = stack.getCount();
+			this.slotClick(slot);
+
+			for (int i = this.inventorySlots.inventorySlots.size() - 36;
+				i < this.inventorySlots.inventorySlots.size();
+				i++)
+			{
+				ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
+
+				if (invstack == null || invstack.isEmpty())
+				{
+					continue;
+				}
+
+				if (ImprovedGuiMerchant.this.areItemStacksMergable(stack, invstack) &&
+					invstack.getCount() < invstack.getMaxStackSize())
+				{
+					remaining -= (invstack.getMaxStackSize() - invstack.getCount());
+					this.slotClick(i);
+				}
+
+				if (remaining <= 0)
+				{
+					return;
+				}
+			}
+
+			// When looking for an empty slot, don't take one that we want to put some input
+			// back to.
+
+			for (int i = this.inventorySlots.inventorySlots.size() - 36;
+				i < this.inventorySlots.inventorySlots.size();
+				i++)
+			{
+				boolean isForbidden = false;
+
+				for (int f : forbidden)
+				{
+					if (i == f)
+					{
+						isForbidden = true;
+					}
+				}
+
+				if (isForbidden)
+				{
+					continue;
+				}
+
+				ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
+
+				if (invstack == null || invstack.isEmpty())
+				{
+					this.slotClick(i);
+
+					return;
+				}
+			}
+		}
+
+
+		/**
+		 * This method process slot clicking operation.
+		 * @param slot Integer that represents slot in inventory that must be clicked.
+		 */
+		private void slotClick(int slot)
+		{
+			while (System.currentTimeMillis() - ConfigurationHandler.getDelayBetweenActions() <
+				this.previousClick)
+			{
+				// doNothing
+			}
+
+			this.previousClick = System.currentTimeMillis();
+
+			this.minecraft.playerController.windowClick(
+				this.minecraft.player.openContainer.windowId,
+				slot,
+				0,
+				ClickType.PICKUP,
+				this.minecraft.player);
+		}
+
+
+
+	// ---------------------------------------------------------------------
+	// Section: Other methods
+	// ---------------------------------------------------------------------
+
+
+		/**
+		 * This method returns if checkBox sellAll is enabled or user holds SHIFT button.
+		 * @return
+		 * 		<code>true</code> if user holds SHIFT or CheckBox sellAll is enabled.
+		 * 		<code>false</code> otherwise.
+		 */
+		private boolean sellAll()
+		{
+			return ImprovedGuiMerchant.this.buttonPanel.isSellAllChecked() ||
+				Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) ||
+				Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
+		}
+
+
+	// ---------------------------------------------------------------------
+	// Section: Variables
+	// ---------------------------------------------------------------------
+
+		/**
+		 * This variable holds System miliseconds when previous slotclick was performed.
+		 */
+		private long previousClick = 0;
+
+		/**
+		 * This variable holds recipe that currently is running.
+		 */
+		private MerchantRecipe recipe;
+
+		/**
+		 * Main game variable for easier internal use.
+		 */
+		private Minecraft minecraft;
+
+		/**
+		 * Current GUI inventory slots.
+		 */
+		private Container inventorySlots;
 	}
+
 
  // ---------------------------------------------------------------------
  // Section: Variables
  // ---------------------------------------------------------------------
 
+	/**
+	 * Thread that process trading operation.
+	 */
+	private Thread processingThread;
 
 	/**
 	 * This is original Merchant Gui button.
