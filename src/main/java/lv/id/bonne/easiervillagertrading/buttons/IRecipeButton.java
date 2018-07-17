@@ -6,6 +6,8 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.village.MerchantRecipe;
+
 
 /**
  * This abstract method allows to draw different types of recipe buttons in MerchantGui.
@@ -83,7 +85,12 @@ public abstract class IRecipeButton extends GuiButton
 		int mouseY,
 		float partialTicks)
 	{
-		this.enabled = !this.merchantGui.getMerchantRecipe(this.recipeIndex).isRecipeDisabled();
+		MerchantRecipe recipe = this.merchantGui.getMerchantRecipe(this.recipeIndex);
+
+		this.enabled = !recipe.isRecipeDisabled() &&
+			this.merchantGui.inputSlotsAreEmpty() &&
+			this.merchantGui.hasEnoughItemsInInventory(recipe) &&
+			this.merchantGui.canReceiveOutput(recipe.getItemToSell());
 
 		super.drawButton(minecraft, mouseX, mouseY, partialTicks);
 	}
