@@ -7,10 +7,10 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 @Mod(modid = EasierVillagerTrading.MODID,
-    version = EasierVillagerTrading.VERSION,
+    version = "{@version:mod}",
     clientSideOnly = true,
     guiFactory = "de.guntram.mcmod.easiervillagertrading.GuiFactory",
-    acceptedMinecraftVersions = "[1.12]",
+    acceptedMinecraftVersions = "{@version:mc}",
     dependencies = "after:jei")
 
 public class EasierVillagerTrading
@@ -37,6 +37,4 @@ public class EasierVillagerTrading
 
 
     public static final String MODID = "easiervillagertrading";
-
-    public static final String VERSION = "1.2";
 }
