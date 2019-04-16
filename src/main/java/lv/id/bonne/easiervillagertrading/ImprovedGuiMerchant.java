@@ -5,6 +5,9 @@
  */
 package lv.id.bonne.easiervillagertrading;
 
+import org.apache.logging.log4j.Level;
+
+import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
 import net.minecraft.client.renderer.ItemRenderer;
 
 import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
@@ -20,7 +23,6 @@ import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
 
-import java.io.IOException;
 
 
 /**
@@ -438,6 +440,8 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		{
 			int remaining = stack.getCount();
 
+			ItemStack targetStack = this.inventorySlots.inventorySlots.get(slot).getStack();
+
 			for (int i = this.inventorySlots.inventorySlots.size() - 36;
 				i < this.inventorySlots.inventorySlots.size();
 				i++)
@@ -453,7 +457,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 				if (ImprovedGuiMerchant.this.areItemStacksMergable(stack, invstack))
 				{
-					if (stack.getCount() + invstack.getCount() > stack.getMaxStackSize())
+					if (targetStack.getCount() + invstack.getCount() > invstack.getMaxStackSize())
 					{
 						needPutBack = true;
 					}
@@ -557,13 +561,14 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		 */
 		private void slotClick(int slot)
 		{
-			while (System.currentTimeMillis() - ConfigurationHandler.getDelayBetweenActions() <
-				this.previousClick)
+			try
 			{
-				// doNothing
+				Thread.sleep(ConfigurationHandler.getDelayBetweenActions());
 			}
-
-			this.previousClick = System.currentTimeMillis();
+			catch (Exception e)
+			{
+				EasierVillagerTrading.LOGGER.log(Level.ERROR, "Exception by applying thread sleep.");
+			}
 
 			this.minecraft.playerController.windowClick(
 				this.minecraft.player.openContainer.windowId,
@@ -596,10 +601,6 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	// Section: Variables
 	// ---------------------------------------------------------------------
 
-		/**
-		 * This variable holds System miliseconds when previous slotclick was performed.
-		 */
-		private long previousClick = 0;
 
 		/**
 		 * This variable holds recipe that currently is running.
@@ -625,7 +626,14 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	public void onGuiClosed()
 	{
 		super.onGuiClosed();
-		this.processingThread.interrupt();
+
+		if (this.processingThread != null && this.processingThread.isAlive())
+		{
+			this.processingThread.interrupt();
+			this.processingThread = null;
+			EasierVillagerTrading.LOGGER.log(Level.WARN, "Treading thread was forcefully canceled by gui closing.");
+
+		}
 	}
 
 
