@@ -1,6 +1,6 @@
 package lv.id.bonne.easiervillagertrading.buttons;
 
-import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
+import lv.id.bonne.easiervillagertrading.gui.ImprovedGuiMerchant;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -182,9 +182,13 @@ public abstract class IRecipeButton extends GuiButton
 
 	private static final int ITEM_STACK_HIGH = 16;
 
-	public static final int BUTTON_TYPE_TEXT_WITH_ENCHANTS = 0;
-
-	public static final int BUTTON_TYPE_TEXT = 1;
-
-	public static final int BUTTON_TYPE_COMPACT = 2;
+	/**
+	 * Variable that holds all available buttons.
+	 */
+	public enum ButtonType
+	{
+		ORIGINAL_BUTTON,
+		ORIGINAL_BUTTON_NO_ENCHANT,
+		COMPACT_BUTTON
+	}
 }

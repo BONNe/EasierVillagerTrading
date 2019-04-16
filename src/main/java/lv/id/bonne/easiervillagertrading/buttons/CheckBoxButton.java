@@ -1,7 +1,7 @@
 package lv.id.bonne.easiervillagertrading.buttons;
 
 
-import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
+import lv.id.bonne.easiervillagertrading.config.Config;
 import net.minecraftforge.fml.client.config.GuiCheckBox;
 
 
@@ -19,6 +19,6 @@ public class CheckBoxButton extends GuiCheckBox
 
 	public void processButton()
 	{
-		ConfigurationHandler.setDefaultSellAll(this.isChecked());
+		Config.setSellAll(this.isChecked());
 	}
 }

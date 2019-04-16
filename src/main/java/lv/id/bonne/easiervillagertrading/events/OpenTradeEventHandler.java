@@ -1,6 +1,6 @@
-package de.guntram.mcmod.easiervillagertrading;
+package lv.id.bonne.easiervillagertrading.events;
 
-import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
+import lv.id.bonne.easiervillagertrading.gui.ImprovedGuiMerchant;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -8,15 +8,9 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 
 public class OpenTradeEventHandler
 {
-    public static OpenTradeEventHandler getInstance()
+    public OpenTradeEventHandler(Minecraft minecraft)
     {
-        if (OpenTradeEventHandler.instance == null)
-        {
-            OpenTradeEventHandler.instance = new OpenTradeEventHandler();
-            OpenTradeEventHandler.instance.mc = Minecraft.getInstance();
-        }
-
-        return OpenTradeEventHandler.instance;
+        this.mc = minecraft;
     }
 
 
@@ -34,8 +28,6 @@ public class OpenTradeEventHandler
     // Variables
     //------------------------------------------------------------------------------------------------------------------
 
-
-    static private OpenTradeEventHandler instance;
 
     private Minecraft mc;
 }

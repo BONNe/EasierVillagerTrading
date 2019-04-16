@@ -1,16 +1,17 @@
-package lv.id.bonne.easiervillagertrading;
+package lv.id.bonne.easiervillagertrading.gui;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
 import lv.id.bonne.easiervillagertrading.buttons.CheckBoxButton;
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
+import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton.ButtonType;
 import lv.id.bonne.easiervillagertrading.buttons.PageButton;
 import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeButton;
 import lv.id.bonne.easiervillagertrading.buttons.recipebuttons.RecipeTextButton;
-import net.minecraft.client.Minecraft;
+import lv.id.bonne.easiervillagertrading.config.Config;
+import lv.id.bonne.easiervillagertrading.config.Config.SideType;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.village.MerchantRecipeList;
@@ -43,15 +44,15 @@ public class ButtonPanel
 	 */
 	private void initPanel()
 	{
-		int side = ConfigurationHandler.getPanelSide();
-		int offsetFromMainPanel = ConfigurationHandler.getOffsetFromGUI();
+		SideType side = Config.getPanelSide();
+		int offsetFromMainPanel = Config.getOffsetFromGUI();
 
-		int offsetFromWindowsTopSide = ConfigurationHandler.getOffsetFromTopSide();
-		int offsetFromWindowsBottomSide = ConfigurationHandler.getOffsetFromBottomSide();
-		int offsetFromWindowRightSide = ConfigurationHandler.getOffsetFromRightSide();
-		int offsetFromWindowLeftSide = ConfigurationHandler.getOffsetFromLeftSide();
+		int offsetFromWindowsTopSide = Config.getOffsetFromTopSide();
+		int offsetFromWindowsBottomSide = Config.getOffsetFromBottomSide();
+		int offsetFromWindowRightSide = Config.getOffsetFromRightSide();
+		int offsetFromWindowLeftSide = Config.getOffsetFromLeftSide();
 
-		boolean alignWithGUI = ConfigurationHandler.alignWithGUI();;
+		boolean alignWithGUI = Config.isAlignWithGUI();;
 
 		int merchantGuiLeftSide = this.merchantGui.getGuiLeft();
 		int merchantGuiTopSide = this.merchantGui.getGuiTop();
@@ -65,7 +66,7 @@ public class ButtonPanel
 		int pageIndexingWidth = 56;
 		int pageIndexingHeight = 15;
 
-		if (side == LEFT_SIDE)
+		if (side == SideType.LEFT_SIDE)
 		{
 			this.width = merchantGuiLeftSide - offsetFromMainPanel - offsetFromWindowLeftSide;
 			this.xPosition = offsetFromWindowLeftSide;
@@ -82,7 +83,7 @@ public class ButtonPanel
 				this.yPosition = offsetFromWindowsTopSide + pageIndexingHeight;
 			}
 		}
-		else if (side == RIGHT_SIDE)
+		else if (side == SideType.RIGHT_SIDE)
 		{
 			this.width = merchantGuiLeftSide - offsetFromMainPanel - offsetFromWindowRightSide;
 			this.xPosition = merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel;
@@ -99,7 +100,7 @@ public class ButtonPanel
 				this.yPosition = offsetFromWindowsTopSide + pageIndexingHeight;
 			}
 		}
-		else if (side == TOP_SIDE)
+		else if (side == SideType.TOP_SIDE)
 		{
 			this.height = merchantGuiTopSide - offsetFromWindowsTopSide - offsetFromMainPanel;
 			this.yPosition = offsetFromWindowsTopSide;
@@ -129,7 +130,7 @@ public class ButtonPanel
 		}
 
 		// Add new PageButtons above current button panel.
-		if (side != TOP_SIDE)
+		if (side != SideType.TOP_SIDE)
 		{
 			this.previousPageButton = new PageButton(this.lastUnusedButtonId++,
 				this.xPosition,
@@ -154,13 +155,13 @@ public class ButtonPanel
 				}
 			};
 
-			if (side == LEFT_SIDE)
+			if (side == SideType.LEFT_SIDE)
 			{
 				this.sellAllCheckbox = new CheckBoxButton(this.lastUnusedButtonId++,
 					merchantGuiLeftSide + 5,
 					merchantGuiTopSide - pageIndexingHeight,
 					"Sell All Items",
-					ConfigurationHandler.isDefaultSellAll())
+					Config.isSellAll())
 				{
 					@Override
 					public void onClick(double mouseX, double mouseY)
@@ -179,7 +180,7 @@ public class ButtonPanel
 					merchantGuiLeftSide + merchantGuiWidth - buttonWidth,
 					merchantGuiTopSide - pageIndexingHeight,
 					"Sell All Items",
-					ConfigurationHandler.isDefaultSellAll())
+					Config.isSellAll())
 				{
 					@Override
 					public void onClick(double mouseX, double mouseY)
@@ -219,7 +220,7 @@ public class ButtonPanel
 				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel,
 				merchantGuiTopSide + offsetFromMainPanel + pageIndexingHeight + 2,
 				"Sell All Items",
-				ConfigurationHandler.isDefaultSellAll())
+				Config.isSellAll())
 			{
 				@Override
 				public void onClick(double mouseX, double mouseY)
@@ -241,11 +242,11 @@ public class ButtonPanel
 		// Validate column count.
 		int maxColumnCount;
 
-		if (this.buttonType == IRecipeButton.BUTTON_TYPE_COMPACT)
+		if (this.buttonType == ButtonType.COMPACT_BUTTON)
 		{
 			maxColumnCount = this.width / 58;
 
-			if (maxColumnCount == 1 && side == RIGHT_SIDE)
+			if (maxColumnCount == 1 && side == SideType.RIGHT_SIDE)
 			{
 				// set better position for compact button.
 
@@ -266,11 +267,11 @@ public class ButtonPanel
 	 */
 	private void validateButtonType()
 	{
-		this.buttonType = IRecipeButton.BUTTON_TYPE_COMPACT;
+		this.buttonType = Config.getButtonType();
 
 		if (this.width < 58 || this.height < 20)
 		{
-			this.buttonType = -1;
+			this.buttonType = null;
 
 			// TODO: Necessary to notify user about current issue.
 
@@ -281,13 +282,13 @@ public class ButtonPanel
 		{
 			// TODO: Necessary to notify user why button type is changed.
 
-			this.buttonType = IRecipeButton.BUTTON_TYPE_COMPACT;
+			this.buttonType = ButtonType.COMPACT_BUTTON;
 		}
-		else if (buttonType == IRecipeButton.BUTTON_TYPE_TEXT_WITH_ENCHANTS && this.width < 90)
+		else if (buttonType == ButtonType.ORIGINAL_BUTTON_NO_ENCHANT && this.width < 90)
 		{
 			// TODO: Necessary to notify user why button type is changed.
 
-			this.buttonType = IRecipeButton.BUTTON_TYPE_TEXT;
+			this.buttonType = ButtonType.ORIGINAL_BUTTON;
 		}
 	}
 
@@ -300,11 +301,11 @@ public class ButtonPanel
 	/**
 	 * This method sets button type;
 	 * @param buttonType Integer that represents type of button that should be used in current panel.
-	 * IRecipeButton.BUTTON_TYPE_TEXT_WITH_ENCHANTS - Old button design.
-	 * IRecipeButton.BUTTON_TYPE_TEXT - Old button design without enchant name.
-	 * IRecipeButton.BUTTON_TYPE_COMPACT - New button design.
+	 * ButtonType.ORIGINAL_BUTTON_NO_ENCHANT - Old button design.
+	 * ButtonType.ORIGINAL_BUTTON - Old button design without enchant name.
+	 * ButtonType.COMPACT_BUTTON - New button design.
 	 */
-	public void setButtonType(int buttonType)
+	public void setButtonType(ButtonType buttonType)
 	{
 		this.buttonType = buttonType;
 	}
@@ -337,7 +338,7 @@ public class ButtonPanel
 			final int size = merchantRecipes.size();
 
 			int buttonHigh = 20;
-			int buttonWidth = this.buttonType == IRecipeButton.BUTTON_TYPE_COMPACT ? 58 : 80;
+			int buttonWidth = this.buttonType == ButtonType.COMPACT_BUTTON ? 58 : 80;
 
 			// process paging
 			this.elementsPerPage = this.maxColumnCount * (int) Math.floor((double) this.height / 20);
@@ -373,7 +374,7 @@ public class ButtonPanel
 
 					IRecipeButton newRecipeButton;
 
-					if (this.buttonType == IRecipeButton.BUTTON_TYPE_COMPACT)
+					if (this.buttonType == ButtonType.COMPACT_BUTTON)
 					{
 						newRecipeButton = new RecipeButton(this.lastUnusedButtonId,
 							x,
@@ -399,7 +400,7 @@ public class ButtonPanel
 							buttonHigh,
 							index,
 							this.merchantGui,
-							this.buttonType == IRecipeButton.BUTTON_TYPE_TEXT_WITH_ENCHANTS)
+							this.buttonType == ButtonType.ORIGINAL_BUTTON_NO_ENCHANT)
 						{
 							@Override
 							public void onClick(double mouseX, double mouseY)
@@ -449,10 +450,10 @@ public class ButtonPanel
 				this.previousPageButton.visible = false;
 
 				// Push up sellAllCheckBox, as index buttons are not visible.
-				if (ConfigurationHandler.getPanelSide() == TOP_SIDE)
+				if (Config.getPanelSide() == SideType.TOP_SIDE)
 				{
 					this.sellAllCheckbox.y = this.merchantGui.getGuiTop() +
-						ConfigurationHandler.getOffsetFromGUI();
+						Config.getOffsetFromGUI();
 				}
 			}
 			else
@@ -497,7 +498,7 @@ public class ButtonPanel
 					yPosition,
 					fontColor);
 
-				if (ConfigurationHandler.getPanelSide() == TOP_SIDE &&
+				if (Config.getPanelSide() == SideType.TOP_SIDE &&
 					this.sellAllCheckbox.y <
 						(this.nextPageButton.y + this.nextPageButton.height))
 				{
@@ -605,7 +606,7 @@ public class ButtonPanel
 	/**
 	 * This variable holds which button design should be used in current panel.
 	 */
-	private int buttonType;
+	private ButtonType buttonType;
 
 	/**
 	 * This variable holds how much columns can be used.
@@ -646,23 +647,4 @@ public class ButtonPanel
 	 * This button allows to use recipe till all items are sold or recipe is not available.
 	 */
 	private CheckBoxButton sellAllCheckbox;
-
-// ---------------------------------------------------------------------
-// Section: Constants
-// ---------------------------------------------------------------------
-
-	/**
-	 * Integer that represents left side.
-	 */
-	private static final int LEFT_SIDE = 0;
-
-	/**
-	 * Integer that represents right side.
-	 */
-	private static final int RIGHT_SIDE = 1;
-
-	/**
-	 * Integer that represents top side.
-	 */
-	private static final int TOP_SIDE = 2;
 }

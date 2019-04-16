@@ -1,7 +1,7 @@
 package lv.id.bonne.easiervillagertrading.buttons.recipebuttons;
 
-import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
-import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
+import lv.id.bonne.easiervillagertrading.Constants;
+import lv.id.bonne.easiervillagertrading.gui.ImprovedGuiMerchant;
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -144,5 +144,5 @@ public class RecipeButton extends IRecipeButton
 
 
 	private static final ResourceLocation DISABLE_RECIPE =
-		new ResourceLocation(EasierVillagerTrading.MODID, "textures/cross.png");
+		new ResourceLocation(Constants.MODID, "textures/cross.png");
 }

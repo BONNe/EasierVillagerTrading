@@ -1,7 +1,7 @@
 package lv.id.bonne.easiervillagertrading.buttons.recipebuttons;
 
-import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
-import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
+import lv.id.bonne.easiervillagertrading.Constants;
+import lv.id.bonne.easiervillagertrading.gui.ImprovedGuiMerchant;
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -233,5 +233,5 @@ public class RecipeTextButton  extends IRecipeButton
 
 
 	private static final ResourceLocation icons =
-		new ResourceLocation(EasierVillagerTrading.MODID, "textures/icons.png");
+		new ResourceLocation(Constants.MODID, "textures/icons.png");
 }

@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package lv.id.bonne.easiervillagertrading;
+package lv.id.bonne.easiervillagertrading.gui;
 
 import org.apache.logging.log4j.Level;
 
-import de.guntram.mcmod.easiervillagertrading.EasierVillagerTrading;
+import lv.id.bonne.easiervillagertrading.EasierVillagerTrading;
+import lv.id.bonne.easiervillagertrading.config.Config;
 import net.minecraft.client.renderer.ItemRenderer;
 
-import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -377,6 +377,16 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		@Override
 		public void run()
 		{
+			if (ImprovedGuiMerchant.debugMode)
+			{
+				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+					"Delay between actions is set to: " + Config.getDelayBetweenActions());
+				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+					"Is selling all: " + this.sellAll());
+				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+					"Processed Recipe: " + this.recipe.getItemToBuy().toString() + " + " + this.recipe.getSecondItemToBuy().toString() + " = " + this.recipe.getItemToSell().toString());
+			}
+
 			if (this.sellAll())
 			{
 				while (!Thread.currentThread().isInterrupted() &&
@@ -406,16 +416,28 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		 */
 		private void transact()
 		{
+			if (ImprovedGuiMerchant.debugMode)
+			{
+				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+					"Transaction is started");
+			}
+
 			int putBack0 = this.fillSlot(0, this.recipe.getItemToBuy());
 			int putBack1 = this.recipe.hasSecondItemToBuy() ?
 				this.fillSlot(1, this.recipe.getSecondItemToBuy()) : -1;
 
 			// Collect result.
-			this.getSlot(2, this.recipe.getItemToSell(), putBack0, putBack1);
+			this.getSlot(this.recipe.getItemToSell(), putBack0, putBack1);
 
 			// Empty first slot.
 			if (putBack0 != -1)
 			{
+				if (ImprovedGuiMerchant.debugMode)
+				{
+					EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+						"Putting back remaining " + this.inventorySlots.getSlot(0).getStack().toString() +  "  from slot 0 to " + putBack0);
+				}
+
 				this.slotClick(0);
 				this.slotClick(putBack0);
 			}
@@ -423,8 +445,20 @@ public class ImprovedGuiMerchant extends GuiMerchant
 			// Empty second slot.
 			if (putBack1 != -1)
 			{
+				if (ImprovedGuiMerchant.debugMode)
+				{
+					EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+						"Putting back remaining " + this.inventorySlots.getSlot(1).getStack().toString() +  "  from slot 1 to " + putBack1);
+				}
+
 				this.slotClick(1);
 				this.slotClick(putBack1);
+			}
+
+			if (ImprovedGuiMerchant.debugMode)
+			{
+				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+					"Transaction ends");
 			}
 		}
 
@@ -440,29 +474,29 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		{
 			int remaining = stack.getCount();
 
-			ItemStack targetStack = this.inventorySlots.inventorySlots.get(slot).getStack();
-
 			for (int i = this.inventorySlots.inventorySlots.size() - 36;
 				i < this.inventorySlots.inventorySlots.size();
 				i++)
 			{
-				ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
-
-				if (invstack == null)
-				{
-					continue;
-				}
+				ItemStack inventoryStack = this.inventorySlots.getSlot(i).getStack();
+				ItemStack tradingStack = this.inventorySlots.getSlot(slot).getStack();
 
 				boolean needPutBack = false;
 
-				if (ImprovedGuiMerchant.this.areItemStacksMergable(stack, invstack))
+				if (ImprovedGuiMerchant.this.areItemStacksMergable(stack, inventoryStack))
 				{
-					if (targetStack.getCount() + invstack.getCount() > invstack.getMaxStackSize())
+					if (tradingStack.getCount() + inventoryStack.getCount() > inventoryStack.getMaxStackSize())
 					{
 						needPutBack = true;
 					}
 
-					remaining -= invstack.getCount();
+					remaining -= inventoryStack.getCount();
+
+					if (ImprovedGuiMerchant.debugMode)
+					{
+						EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+							"Filling slot " + slot + " with " + inventoryStack.toString() + " from slot " + i);
+					}
 
 					this.slotClick(i);
 					this.slotClick(slot);
@@ -470,6 +504,12 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 				if (needPutBack)
 				{
+					if (ImprovedGuiMerchant.debugMode)
+					{
+						EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+							"Putting back remaining " + (tradingStack.getCount() + inventoryStack.getCount() - inventoryStack.getMaxStackSize()) +  " items from " + slot + " to " + i);
+					}
+
 					this.slotClick(i);
 				}
 
@@ -488,30 +528,35 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 
 		/**
-		 * @param slot
 		 * @param stack
 		 * @param forbidden
 		 */
-		private void getSlot(int slot, ItemStack stack, int... forbidden)
+		private void getSlot(ItemStack stack, int... forbidden)
 		{
+			if (ImprovedGuiMerchant.debugMode)
+			{
+				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+					"Collecting sell results " + this.inventorySlots.getSlot(2).getStack().toString());
+			}
+
 			int remaining = stack.getCount();
-			this.slotClick(slot);
+			this.slotClick(2);
 
 			for (int i = this.inventorySlots.inventorySlots.size() - 36;
 				i < this.inventorySlots.inventorySlots.size();
 				i++)
 			{
-				ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
+				ItemStack inventoryStack = this.inventorySlots.getSlot(i).getStack();
 
-				if (invstack == null || invstack.isEmpty())
+				if (inventoryStack.isEmpty())
 				{
 					continue;
 				}
 
-				if (ImprovedGuiMerchant.this.areItemStacksMergable(stack, invstack) &&
-					invstack.getCount() < invstack.getMaxStackSize())
+				if (ImprovedGuiMerchant.this.areItemStacksMergable(stack, inventoryStack) &&
+					inventoryStack.getCount() < inventoryStack.getMaxStackSize())
 				{
-					remaining -= (invstack.getMaxStackSize() - invstack.getCount());
+					remaining -= (inventoryStack.getMaxStackSize() - inventoryStack.getCount());
 					this.slotClick(i);
 				}
 
@@ -545,7 +590,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 
 				ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
 
-				if (invstack == null || invstack.isEmpty())
+				if (invstack.isEmpty())
 				{
 					this.slotClick(i);
 
@@ -563,7 +608,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		{
 			try
 			{
-				Thread.sleep(ConfigurationHandler.getDelayBetweenActions());
+				Thread.sleep(Config.getDelayBetweenActions());
 			}
 			catch (Exception e)
 			{
@@ -576,6 +621,12 @@ public class ImprovedGuiMerchant extends GuiMerchant
 				0,
 				ClickType.PICKUP,
 				this.minecraft.player);
+
+			if (ImprovedGuiMerchant.debugMode)
+			{
+				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+					"Clicked on slot: " + slot);
+			}
 		}
 
 
@@ -637,7 +688,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
-	// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
  // Section: Variables
  // ---------------------------------------------------------------------
 
@@ -660,4 +711,12 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * Panel with recipe buttons.
 	 */
     private ButtonPanel buttonPanel;
+
+
+// ---------------------------------------------------------------------
+// Section: Constants
+// ---------------------------------------------------------------------
+
+
+	private static final boolean debugMode = false;
 }
