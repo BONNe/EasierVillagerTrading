@@ -377,10 +377,21 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		@Override
 		public void run()
 		{
+			if (this.minecraft.getConnection() != null)
+			{
+				this.responseTime = this.minecraft.
+					getConnection().
+					getPlayerInfo(this.minecraft.player.getGameProfile().getId()).
+					getResponseTime();
+			}
+
+
 			if (ImprovedGuiMerchant.debugMode)
 			{
 				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
 					"Delay between actions is set to: " + Config.getDelayBetweenActions());
+				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+					"Server Ping: " + this.responseTime);
 				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
 					"Is selling all: " + this.sellAll());
 				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
@@ -608,7 +619,8 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		{
 			try
 			{
-				Thread.sleep(Config.getDelayBetweenActions());
+				// Adjust delay between actions with server ping.
+				Thread.sleep(Config.getDelayBetweenActions() + this.responseTime);
 			}
 			catch (Exception e)
 			{
@@ -667,6 +679,11 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		 * Current GUI inventory slots.
 		 */
 		private Container inventorySlots;
+
+		/**
+		 * Server ping.
+		 */
+		private int responseTime;
 	}
 
 
