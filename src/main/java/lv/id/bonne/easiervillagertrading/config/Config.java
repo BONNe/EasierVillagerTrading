@@ -9,7 +9,9 @@ public class Config
 {
 	static void init()
 	{
-		ConfigurationLoader.CLIENT_BUILDER.comment("EasierVillagerTrading");
+		ConfigurationLoader.CLIENT_BUILDER.
+				comment("Easier Villager Trading configuration").
+				push("EasierVillagerTrading");
 
 		sellAll = ConfigurationLoader.CLIENT_BUILDER.
 			comment("Should sell all be enabled on GUI opening.").
@@ -58,6 +60,8 @@ public class Config
 		delayBetweenActions = ConfigurationLoader.CLIENT_BUILDER.
 			comment("This allows to bypass NoCheatPlus defense. Recipes will be processed slower, but they will work.").
 			defineInRange("delay_between_actions", 100, 0, 10000);
+
+		ConfigurationLoader.CLIENT_BUILDER.pop();
 	}
 
 
