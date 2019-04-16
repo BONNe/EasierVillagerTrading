@@ -7,8 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.village.MerchantRecipe;
 
@@ -69,9 +69,9 @@ public class RecipeButton extends IRecipeButton
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void drawButton(Minecraft minecraft, int mouseX, int mouseY, float p)
+	public void render(int mouseX, int mouseY, float p)
 	{
-		super.drawButton(minecraft, mouseX, mouseY, p);
+		super.render(mouseX, mouseY, p);
 
 		if (this.visible)
 		{
@@ -87,7 +87,7 @@ public class RecipeButton extends IRecipeButton
 
 			GlStateManager.pushMatrix();
 
-			RenderItem itemRender = this.merchantGui.getItemRender();
+			ItemRenderer itemRender = this.merchantGui.getItemRender();
 			FontRenderer fontRender = this.merchantGui.getFontRender();
 
 			this.renderItem(recipe.getItemToBuy(),
@@ -118,8 +118,8 @@ public class RecipeButton extends IRecipeButton
 
 			if (recipe.isRecipeDisabled())
 			{
-				minecraft.getTextureManager().bindTexture(DISABLE_RECIPE);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				Minecraft.getInstance().getTextureManager().bindTexture(DISABLE_RECIPE);
+				GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 				GlStateManager.disableLighting();
 
 				// real physical texture is 30x30 pixels, and we just reduce it a touch

@@ -78,7 +78,7 @@ public class RecipeTextButton  extends IRecipeButton
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void drawButton(Minecraft minecraft, int mouseX, int mouseY, float p)
+	public void render(int mouseX, int mouseY, float p)
 	{
 		if (this.visible)
 		{
@@ -126,10 +126,10 @@ public class RecipeTextButton  extends IRecipeButton
 				{
 					StringBuilder enchants = new StringBuilder();
 
-					for (int index = 0; index < enchantments.tagCount(); ++index)
+					for (int index = 0; index < enchantments.size(); ++index)
 					{
-						int enchantID = enchantments.getCompoundTagAt(index).getShort("id");
-						int enchantLevel = enchantments.getCompoundTagAt(index).getShort("lvl");
+						int enchantID = enchantments.getCompound(index).getShort("id");
+						int enchantLevel = enchantments.getCompound(index).getShort("lvl");
 
 						Enchantment enchant = Enchantment.getEnchantmentByID(enchantID);
 
@@ -140,7 +140,7 @@ public class RecipeTextButton  extends IRecipeButton
 								enchants.append(", ");
 							}
 
-							enchants.append(enchant.getTranslatedName(enchantLevel));
+							enchants.append(enchant.getName() + ":" + enchantLevel);
 						}
 					}
 
@@ -165,11 +165,11 @@ public class RecipeTextButton  extends IRecipeButton
 			RenderHelper.disableStandardItemLighting();
 
 			// needed so items don't get a text color overlay
-			GlStateManager.color(1f, 1f, 1f, 1f);
+			GlStateManager.color4f(1f, 1f, 1f, 1f);
 			GlStateManager.enableBlend();
 
 			// arrows; use standard item lighting for them so we need a separate loop
-			minecraft.getTextureManager().bindTexture(RecipeTextButton.icons);
+			Minecraft.getInstance().getTextureManager().bindTexture(RecipeTextButton.icons);
 
 			if (!recipe.isRecipeDisabled() &&
 				this.merchantGui.inputSlotsAreEmpty() &&

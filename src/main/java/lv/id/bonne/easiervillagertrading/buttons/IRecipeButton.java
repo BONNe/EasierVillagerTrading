@@ -1,10 +1,9 @@
 package lv.id.bonne.easiervillagertrading.buttons;
 
 import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.village.MerchantRecipe;
 
@@ -80,19 +79,16 @@ public abstract class IRecipeButton extends GuiButton
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void drawButton(Minecraft minecraft,
-		int mouseX,
-		int mouseY,
-		float partialTicks)
+	public void render(int mouseX, int mouseY, float partialTicks)
 	{
 		MerchantRecipe recipe = this.merchantGui.getMerchantRecipe(this.recipeIndex);
 
 		this.enabled = !recipe.isRecipeDisabled() &&
-			this.merchantGui.inputSlotsAreEmpty() &&
-			this.merchantGui.hasEnoughItemsInInventory(recipe) &&
-			this.merchantGui.canReceiveOutput(recipe.getItemToSell());
+				this.merchantGui.inputSlotsAreEmpty() &&
+				this.merchantGui.hasEnoughItemsInInventory(recipe) &&
+				this.merchantGui.canReceiveOutput(recipe.getItemToSell());
 
-		super.drawButton(minecraft, mouseX, mouseY, partialTicks);
+		super.render(mouseX, mouseY, partialTicks);
 	}
 
 
@@ -134,7 +130,7 @@ public abstract class IRecipeButton extends GuiButton
 	 * @param y ItemStack Y position.
 	 */
 	protected void renderItem(ItemStack itemStack,
-		RenderItem itemRender,
+		ItemRenderer itemRender,
 		FontRenderer fontRender,
 		int x,
 		int y)

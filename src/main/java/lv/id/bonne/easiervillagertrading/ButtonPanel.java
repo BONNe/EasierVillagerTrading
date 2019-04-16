@@ -134,11 +134,25 @@ public class ButtonPanel
 			this.previousPageButton = new PageButton(this.lastUnusedButtonId++,
 				this.xPosition,
 				this.yPosition - pageIndexingHeight,
-				false);
+				false)
+			{
+				@Override
+				public void onClick(double mouseX, double mouseY)
+				{
+					ButtonPanel.this.currentPageIndex--;
+				}
+			};
 			this.nextPageButton = new PageButton(this.lastUnusedButtonId++,
 				this.xPosition + pageIndexingWidth - 10,
 				this.yPosition - pageIndexingHeight,
-				true);
+				true)
+			{
+				@Override
+				public void onClick(double mouseX, double mouseY)
+				{
+					ButtonPanel.this.currentPageIndex++;
+				}
+			};
 
 			if (side == LEFT_SIDE)
 			{
@@ -146,7 +160,15 @@ public class ButtonPanel
 					merchantGuiLeftSide + 5,
 					merchantGuiTopSide - pageIndexingHeight,
 					"Sell All Items",
-					ConfigurationHandler.isDefaultSellAll());
+					ConfigurationHandler.isDefaultSellAll())
+				{
+					@Override
+					public void onClick(double mouseX, double mouseY)
+					{
+						super.onClick(mouseX, mouseY);
+						this.processButton();
+					}
+				};
 			}
 			else
 			{
@@ -157,7 +179,15 @@ public class ButtonPanel
 					merchantGuiLeftSide + merchantGuiWidth - buttonWidth,
 					merchantGuiTopSide - pageIndexingHeight,
 					"Sell All Items",
-					ConfigurationHandler.isDefaultSellAll());
+					ConfigurationHandler.isDefaultSellAll())
+				{
+					@Override
+					public void onClick(double mouseX, double mouseY)
+					{
+						super.onClick(mouseX, mouseY);
+						this.processButton();
+					}
+				};
 			}
 		}
 		else
@@ -165,17 +195,39 @@ public class ButtonPanel
 			this.previousPageButton = new PageButton(this.lastUnusedButtonId++,
 				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel,
 				merchantGuiTopSide + offsetFromMainPanel,
-				false);
+				false)
+			{
+				@Override
+				public void onClick(double mouseX, double mouseY)
+				{
+					ButtonPanel.this.currentPageIndex--;
+				}
+			};
 			this.nextPageButton = new PageButton(this.lastUnusedButtonId++,
 				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel + pageIndexingWidth - 10,
 				merchantGuiTopSide + offsetFromMainPanel,
-				true);
+				true)
+			{
+				@Override
+				public void onClick(double mouseX, double mouseY)
+				{
+					ButtonPanel.this.currentPageIndex++;
+				}
+			};
 
 			this.sellAllCheckbox = new CheckBoxButton(this.lastUnusedButtonId++,
 				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel,
 				merchantGuiTopSide + offsetFromMainPanel + pageIndexingHeight + 2,
 				"Sell All Items",
-				ConfigurationHandler.isDefaultSellAll());
+				ConfigurationHandler.isDefaultSellAll())
+			{
+				@Override
+				public void onClick(double mouseX, double mouseY)
+				{
+					super.onClick(mouseX, mouseY);
+					this.processButton();
+				}
+			};
 		}
 
 		this.merchantGui.addGuiButton(this.previousPageButton);
@@ -214,7 +266,7 @@ public class ButtonPanel
 	 */
 	private void validateButtonType()
 	{
-		this.buttonType = ConfigurationHandler.getButtonType();
+		this.buttonType = IRecipeButton.BUTTON_TYPE_COMPACT;
 
 		if (this.width < 58 || this.height < 20)
 		{
@@ -329,7 +381,14 @@ public class ButtonPanel
 							buttonWidth,
 							buttonHigh,
 							index,
-							this.merchantGui);
+							this.merchantGui)
+						{
+							@Override
+							public void onClick(double mouseX, double mouseY)
+							{
+								ButtonPanel.this.merchantGui.startRecipeTrading(ButtonPanel.this.getRecipeFromButton(this));
+							}
+						};
 					}
 					else
 					{
@@ -340,7 +399,14 @@ public class ButtonPanel
 							buttonHigh,
 							index,
 							this.merchantGui,
-							this.buttonType == IRecipeButton.BUTTON_TYPE_TEXT_WITH_ENCHANTS);
+							this.buttonType == IRecipeButton.BUTTON_TYPE_TEXT_WITH_ENCHANTS)
+						{
+							@Override
+							public void onClick(double mouseX, double mouseY)
+							{
+								ButtonPanel.this.merchantGui.startRecipeTrading(ButtonPanel.this.getRecipeFromButton(this));
+							}
+						};
 					}
 
 
@@ -371,7 +437,7 @@ public class ButtonPanel
 
 				for (IRecipeButton button : this.tradingButtons)
 				{
-					button.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+					button.render(mouseX, mouseY, partialTicks);
 				}
 
 				for (IRecipeButton button : this.tradingButtons)
@@ -400,7 +466,7 @@ public class ButtonPanel
 					GuiButton button = this.tradingButtons.get(index);
 
 					button.visible = index >= firstElement && index < firstElement + this.elementsPerPage;
-					button.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+					button.render(mouseX, mouseY, partialTicks);
 				}
 
 				for (int index = firstElement;
@@ -443,8 +509,8 @@ public class ButtonPanel
 				this.previousPageButton.visible = true;
 			}
 
-			this.previousPageButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
-			this.nextPageButton.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+			this.previousPageButton.render(mouseX, mouseY, partialTicks);
+			this.nextPageButton.render(mouseX, mouseY, partialTicks);
 		}
 	}
 
@@ -481,27 +547,6 @@ public class ButtonPanel
 	public boolean isRecipeButton(GuiButton button)
 	{
 		return button instanceof IRecipeButton;
-	}
-
-
-	/**
-	 * This method process given button pressing action.
-	 * @param button GuiButton.
-	 */
-	public void actionPerformed(GuiButton button)
-	{
-		if (button == this.nextPageButton)
-		{
-			this.currentPageIndex++;
-		}
-		else if (button == this.previousPageButton)
-		{
-			this.currentPageIndex--;
-		}
-		else if (button == this.sellAllCheckbox)
-		{
-			this.sellAllCheckbox.processButton();
-		}
 	}
 
 

@@ -5,26 +5,22 @@
  */
 package lv.id.bonne.easiervillagertrading;
 
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.renderer.ItemRenderer;
 
 import de.guntram.mcmod.easiervillagertrading.ConfigurationHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
@@ -55,8 +51,8 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		super.initGui();
 
 		// Set up as local variables to avoid list getters.
-		this.nextRecipeButton = this.buttonList.get(0);
-		this.previousRecipeButton = this.buttonList.get(1);
+		this.nextRecipeButton = this.buttons.get(0);
+		this.previousRecipeButton = this.buttons.get(1);
 
 		this.buttonPanel = new ButtonPanel(this);
 	}
@@ -66,9 +62,9 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateScreen()
+	public void tick()
 	{
-		super.updateScreen();
+		super.tick();
 		this.buttonPanel.validateTradingButtons();
 	}
 
@@ -76,37 +72,10 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	protected void actionPerformed(GuiButton guiButton) throws IOException
-	{
-		if (this.nextRecipeButton == guiButton || this.previousRecipeButton == guiButton)
-		{
-			// Original buttons. Not overriding.
-			super.actionPerformed(guiButton);
-		}
-		else
-		{
-			// All other buttons.
-
-			if (this.buttonPanel.isRecipeButton(guiButton))
-			{
-				this.startRecipeTrading(this.buttonPanel.getRecipeFromButton(guiButton));
-			}
-			else
-			{
-				this.buttonPanel.actionPerformed(guiButton);
-			}
-		}
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void render(int mouseX, int mouseY, float partialTicks)
     {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        super.render(mouseX, mouseY, partialTicks);
 
 		this.buttonPanel.drawAllButtons(mouseX, mouseY, partialTicks);
 	}
@@ -121,9 +90,8 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * This method process trading. It selects correct recipe (by recipe index) and
 	 * uses it, if it is possible.
 	 * @param recipeIndex Index of recipe that should be used.
-	 * @throws IOException Exception.
 	 */
-	private void startRecipeTrading(int recipeIndex) throws IOException
+	public void startRecipeTrading(int recipeIndex)
 	{
 		MerchantRecipeList trades = this.getRecipes();
 
@@ -139,12 +107,12 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		{
 			for (int i = 0; i < numTrades; i++)
 			{
-				this.actionPerformed(this.previousRecipeButton);
+				this.previousRecipeButton.onClick(this.previousRecipeButton.x, this.previousRecipeButton.y);
 			}
 
 			for (int i = 0; i < recipeIndex; i++)
 			{
-				this.actionPerformed(this.nextRecipeButton);
+				this.nextRecipeButton.onClick(this.nextRecipeButton.x, this.nextRecipeButton.y);
 			}
 
 			MerchantRecipe recipe = trades.get(recipeIndex);
@@ -251,7 +219,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		}
 
 		return a.getItem() == b.getItem()
-			&& (!a.getHasSubtypes() || a.getItemDamage() == b.getItemDamage())
+			&& (a.getDamage() == b.getDamage())
 			&& ItemStack.areItemStackTagsEqual(a, b);
 	}
 
@@ -304,7 +272,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	 * This method returns current gui item render.
 	 * @return RenderItem object for current Gui.
 	 */
-	public RenderItem getItemRender()
+	public ItemRenderer getItemRender()
 	{
 		return this.itemRender;
 	}
@@ -620,9 +588,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		 */
 		private boolean sellAll()
 		{
-			return ImprovedGuiMerchant.this.buttonPanel.isSellAllChecked() ||
-				Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) ||
-				Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
+			return ImprovedGuiMerchant.this.buttonPanel.isSellAllChecked();
 		}
 
 
@@ -652,7 +618,18 @@ public class ImprovedGuiMerchant extends GuiMerchant
 	}
 
 
- // ---------------------------------------------------------------------
+	/**
+	 * Called when the screen is unloaded. Used to disable keyboard repeat events
+	 */
+	@Override
+	public void onGuiClosed()
+	{
+		super.onGuiClosed();
+		this.processingThread.interrupt();
+	}
+
+
+	// ---------------------------------------------------------------------
  // Section: Variables
  // ---------------------------------------------------------------------
 

@@ -1,12 +1,9 @@
 package de.guntram.mcmod.easiervillagertrading;
 
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import java.io.File;
 import java.util.Arrays;
-
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.Loader;
 
 
 /**
@@ -34,12 +31,12 @@ public class ConfigurationHandler
      * This method loads and parse configuration from given file.
      * @param configFile File that contains mod options.
      */
-    public void load(final File configFile)
+    public void load()
     {
-        if (this.config == null)
+//        if (this.config == null)
         {
-            this.config = new Configuration(configFile);
-            this.configFileName = configFile.getPath();
+//            this.config = new Configuration(configFile);
+//            this.configFileName = configFile.getPath();
             this.loadConfig();
         }
     }
@@ -50,88 +47,33 @@ public class ConfigurationHandler
      */
     private void loadConfig()
     {
-        this.showLeft = this.config.getBoolean("Trades list left", Configuration.CATEGORY_CLIENT,
-            Loader.isModLoaded("jei"),
-            "Show trades list to the left, for Just Enough Items compatibility");
-        this.leftPixelOffset = this.config.getInt("Trades left pixel offset", Configuration.CATEGORY_CLIENT,
-            0, 0, Integer.MAX_VALUE,
-            "How many pixels left of the GUI the trades list will be shown. Use 0 for auto detect. " +
-                "Only used if Trades list left is true.");
+        this.showLeft = true;
+        this.leftPixelOffset = 0;
 
         // new options
 
-        this.buttonType = this.config.getString("Recipe Button type",
-            Configuration.CATEGORY_CLIENT,
-            VALID_BUTTONS[0],
-            "There are 3 types of button: " +
-                "Original button, that was implemented in original mod. " +
-                "Original button without enchant text. " +
-                "Compact button with Minecraft button design.",
-            VALID_BUTTONS);
+        this.buttonType = VALID_BUTTONS[0];
 
-        this.panelSide = this.config.getString("Recipe Button position",
-            Configuration.CATEGORY_CLIENT,
-            VALID_SIDES[0],
-            "All recipe buttons can be positioned in 3 sides: " +
-                "Left side, Right side and Top side.",
-            VALID_SIDES);
+        this.panelSide = VALID_SIDES[0];
 
-        this.alignWithGUI = this.config.getBoolean("Align buttons with MerchantGUI",
-            Configuration.CATEGORY_CLIENT,
-            false,
-            "Should buttons be aligned with MerchantGUI.");
+        this.alignWithGUI = false;
 
-        this.offsetFromGUI = this.config.getInt("Offset From GUI Menu",
-            Configuration.CATEGORY_CLIENT,
-            5,
-            0,
-            Integer.MAX_VALUE,
-            "How many pixels from all sides of the GUI the trades list will be shown.");
+        this.offsetFromGUI = 0;
 
-        this.offsetFromTopSide = this.config.getInt("Offset From Window Top",
-            Configuration.CATEGORY_CLIENT,
-            5,
-            0,
-            Integer.MAX_VALUE,
-            "How many pixels from Top side of the Window the trades list will be shown. " +
-            "If aligning with GUI is enabled, then this option is ignored for Left and Right button position.");
+        this.offsetFromTopSide = 0;
 
-        this.offsetFromBottomSide = this.config.getInt("Offset From Window Bottom",
-            Configuration.CATEGORY_CLIENT,
-            5,
-            0,
-            Integer.MAX_VALUE,
-            "How many pixels from Bottom side of the Window the trades list will be shown. " +
-                "If aligning with GUI is enabled, then this option is ignored for Left and Right button position.");
+        this.offsetFromBottomSide = 0;
 
-        this.offsetFromRightSide = this.config.getInt("Offset From Window Right",
-            Configuration.CATEGORY_CLIENT,
-            5,
-            0,
-            Integer.MAX_VALUE,
-            "How many pixels from Right side of the Window the trades list will be shown. " +
-                "If aligning with GUI is enabled, then this option is ignored for Top button position.");
+        this.offsetFromRightSide = 0;
 
-        this.offsetFromLeftSide = this.config.getInt("Offset From Window Left",
-            Configuration.CATEGORY_CLIENT,
-            5,
-            0,
-            Integer.MAX_VALUE,
-            "How many pixels from Left side of the Window the trades list will be shown. " +
-                "If aligning with GUI is enabled, then this option is ignored for Top button position.");
+        this.offsetFromLeftSide = 0;
 
-        this.delayBetweenActions = this.config.getInt("MS Delay between Actions",
-            Configuration.CATEGORY_CLIENT,
-            100,
-            0,
-            10000,
-            "This allows to bypass NoCheatPlus defense. Recipes will be processed slower, but +" +
-                "they will work.");
+        this.delayBetweenActions = 100;
 
-        if (this.config.hasChanged())
-        {
-            this.config.save();
-        }
+//        if (this.config.hasChanged())
+//        {
+//            this.config.save();
+//        }
     }
 
 
@@ -154,10 +96,10 @@ public class ConfigurationHandler
 // ---------------------------------------------------------------------
 
 
-    public static Configuration getConfig()
-    {
-        return ConfigurationHandler.getInstance().config;
-    }
+//    public static Configuration getConfig()
+//    {
+//        return ConfigurationHandler.getInstance().config;
+//    }
 
 
     public static String getConfigFileName()
@@ -295,7 +237,7 @@ public class ConfigurationHandler
      */
     public static int getDelayBetweenActions()
     {
-        return ConfigurationHandler.getInstance().delayBetweenActions;
+        return 150;
     }
 
 
@@ -322,7 +264,7 @@ public class ConfigurationHandler
     /**
      * Configuration that contains all mod options.
      */
-    private Configuration config;
+//    private Configuration config;
 
     /**
      * File where mod options are saved.

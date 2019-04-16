@@ -3,7 +3,7 @@ package de.guntram.mcmod.easiervillagertrading;
 import lv.id.bonne.easiervillagertrading.ImprovedGuiMerchant;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMerchant;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 
 public class OpenTradeEventHandler
@@ -13,7 +13,7 @@ public class OpenTradeEventHandler
         if (OpenTradeEventHandler.instance == null)
         {
             OpenTradeEventHandler.instance = new OpenTradeEventHandler();
-            OpenTradeEventHandler.instance.mc = Minecraft.getMinecraft();
+            OpenTradeEventHandler.instance.mc = Minecraft.getInstance();
         }
 
         return OpenTradeEventHandler.instance;

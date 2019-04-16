@@ -18,12 +18,13 @@ public class PageButton extends GuiButton
 	/**
 	 * {@inheritDoc}
 	 */
-	public void drawButton(Minecraft minecraft, int mouseX, int mouseY, float partialTicks)
+	@Override
+	public void render(int mouseX, int mouseY, float partialTicks)
 	{
 		if (this.visible)
 		{
-			minecraft.getTextureManager().bindTexture(RESOURCE_ICONS);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			Minecraft.getInstance().getTextureManager().bindTexture(RESOURCE_ICONS);
+			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width &&
 				mouseY < this.y + this.height;
 			int i = 0;

@@ -2,39 +2,55 @@ package de.guntram.mcmod.easiervillagertrading;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Mod(modid = EasierVillagerTrading.MODID,
-    version = "{@version:mod}",
-    clientSideOnly = true,
-    guiFactory = "de.guntram.mcmod.easiervillagertrading.GuiFactory",
-    acceptedMinecraftVersions = "{@version:mc}",
-    dependencies = "after:jei")
 
+@Mod("easiervillagertrading")
 public class EasierVillagerTrading
 {
-    @EventHandler
-    public void init(FMLInitializationEvent event)
+    public EasierVillagerTrading()
+    {
+        // Register the setup method for modloading
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+
+        // Register the doClientStuff method for modloading
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+
+        // Register ourselves for server and other game events we are interested in
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+
+    private void setup(final FMLCommonSetupEvent event)
+    {
+        ConfigurationHandler confHandler = ConfigurationHandler.getInstance();
+        confHandler.load();
+        MinecraftForge.EVENT_BUS.register(confHandler);
+    }
+
+
+    private void doClientStuff(final FMLClientSetupEvent fmlEvent)
     {
         MinecraftForge.EVENT_BUS.register(OpenTradeEventHandler.getInstance());
     }
 
-
-    @EventHandler
-    public void preInit(final FMLPreInitializationEvent event)
-    {
-        ConfigurationHandler confHandler = ConfigurationHandler.getInstance();
-        confHandler.load(event.getSuggestedConfigurationFile());
-        MinecraftForge.EVENT_BUS.register(confHandler);
-    }
 
 
     //------------------------------------------------------------------------------------------------------------------
     // Variables
     //------------------------------------------------------------------------------------------------------------------
 
+    /**
+     * Minecraft logger.
+     */
+    public static final Logger LOGGER = LogManager.getLogger();
 
+    /**
+     * Mod ID
+     */
     public static final String MODID = "easiervillagertrading";
 }
