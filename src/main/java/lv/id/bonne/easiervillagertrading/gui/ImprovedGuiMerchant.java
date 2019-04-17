@@ -22,6 +22,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
+import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.util.InputMappings;
 
 
 
@@ -656,7 +658,14 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		 */
 		private boolean sellAll()
 		{
-			return ImprovedGuiMerchant.this.buttonPanel.isSellAllChecked();
+			// Two ways how to get this info
+			// InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT);
+			// GLFW.glfwGetKey(this.minecraft.mainWindow.getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS
+			// I will use shortest version
+
+			return ImprovedGuiMerchant.this.buttonPanel.isSellAllChecked() ||
+				InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)||
+				InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT);
 		}
 
 
