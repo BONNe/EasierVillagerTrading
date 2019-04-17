@@ -61,6 +61,10 @@ public class Config
 			comment(" This allows to bypass NoCheatPlus defense. Recipes will be processed slower, but they will work.").
 			defineInRange("delay_between_actions", 100, 0, 10000);
 
+		addPingToDelay = ConfigurationLoader.CLIENT_BUILDER.
+				comment(" This adds extra delay between actions that corresponds to player ping to server when GUI is opened.").
+				define("ping_delay", true);
+
 		ConfigurationLoader.CLIENT_BUILDER.pop();
 	}
 
@@ -129,6 +133,13 @@ public class Config
 		return delayBetweenActions.get();
 	}
 
+
+	public static boolean isAddPingToDelay()
+	{
+		return addPingToDelay.get();
+	}
+
+
 // ---------------------------------------------------------------------
 // Section: Setters
 // ---------------------------------------------------------------------
@@ -194,6 +205,12 @@ public class Config
 	}
 
 
+	public static void setAddPingToDelay(ForgeConfigSpec.BooleanValue addPingToDelay)
+	{
+		Config.addPingToDelay = addPingToDelay;
+	}
+
+
 // ---------------------------------------------------------------------
 // Section: Variables
 // ---------------------------------------------------------------------
@@ -248,6 +265,10 @@ public class Config
 	 */
 	private static ForgeConfigSpec.IntValue delayBetweenActions;
 
+	/**
+	 * Booelan that indicate response time must be added to delay timer.
+	 */
+	private static ForgeConfigSpec.BooleanValue addPingToDelay;
 
 // ---------------------------------------------------------------------
 // Section: Enums

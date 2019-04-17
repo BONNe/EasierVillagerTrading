@@ -379,14 +379,13 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		@Override
 		public void run()
 		{
-			if (this.minecraft.getConnection() != null)
+			if (Config.isAddPingToDelay() && this.minecraft.getConnection() != null)
 			{
 				this.responseTime = this.minecraft.
 					getConnection().
 					getPlayerInfo(this.minecraft.player.getGameProfile().getId()).
 					getResponseTime();
 			}
-
 
 			if (ImprovedGuiMerchant.debugMode)
 			{
