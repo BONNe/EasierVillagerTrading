@@ -4,6 +4,7 @@ package lv.id.bonne.easiervillagertrading.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import lv.id.bonne.easiervillagertrading.buttons.AutoTradeButton;
 import lv.id.bonne.easiervillagertrading.buttons.CheckBoxButton;
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton;
 import lv.id.bonne.easiervillagertrading.buttons.IRecipeButton.ButtonType;
@@ -170,6 +171,16 @@ public class ButtonPanel
 						this.processButton();
 					}
 				};
+
+				int offset = this.sellAllCheckbox.width + 15;
+
+				this.autoTradeButton = new AutoTradeButton(this.lastUnusedButtonId++,
+					merchantGuiLeftSide + 5 + offset,
+					merchantGuiTopSide - pageIndexingHeight,
+					this.merchantGui.getFontRender().getStringWidth("Auto Trade") + 10,
+					this.sellAllCheckbox.height + 5,
+					"Auto Trade",
+					this.merchantGui);
 			}
 			else
 			{
@@ -189,6 +200,15 @@ public class ButtonPanel
 						this.processButton();
 					}
 				};
+
+				// TODO FIX THIS
+				this.autoTradeButton = new AutoTradeButton(this.lastUnusedButtonId++,
+					merchantGuiLeftSide + 5 + 2 * buttonWidth,
+					merchantGuiTopSide - pageIndexingHeight,
+					11,
+					11,
+					"Auto Trade",
+					this.merchantGui);
 			}
 		}
 		else
@@ -229,11 +249,21 @@ public class ButtonPanel
 					this.processButton();
 				}
 			};
+
+			// TODO FIX THIS
+			this.autoTradeButton = new AutoTradeButton(this.lastUnusedButtonId++,
+				merchantGuiLeftSide + merchantGuiWidth + offsetFromMainPanel,
+				merchantGuiTopSide + offsetFromMainPanel + pageIndexingHeight + 20,
+				11,
+				11,
+				"Auto Trade",
+				this.merchantGui);
 		}
 
 		this.merchantGui.addGuiButton(this.previousPageButton);
 		this.merchantGui.addGuiButton(this.nextPageButton);
 		this.merchantGui.addGuiButton(this.sellAllCheckbox);
+		this.merchantGui.addGuiButton(this.autoTradeButton);
 
 		this.sellAllCheckbox.visible = true;
 
@@ -647,4 +677,10 @@ public class ButtonPanel
 	 * This button allows to use recipe till all items are sold or recipe is not available.
 	 */
 	private CheckBoxButton sellAllCheckbox;
+
+	/**
+	 * This button allows to detect all tradable items in inventory and sell them all.
+	 * ITEM->EMERALD
+	 */
+	private AutoTradeButton autoTradeButton;
 }

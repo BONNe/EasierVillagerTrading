@@ -18,11 +18,16 @@ import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import net.minecraft.client.util.InputMappings;
 
 
@@ -88,6 +93,41 @@ public class ImprovedGuiMerchant extends GuiMerchant
 // ---------------------------------------------------------------------
 // Section: Process Trading operation
 // ---------------------------------------------------------------------
+
+
+	public void startAllItemTrading()
+	{
+		MerchantRecipeList trades = this.getRecipes();
+
+		if (trades == null)
+		{
+			// nothing to process.
+			return;
+		}
+
+		List<MerchantRecipe> tradableRecipes = new ArrayList<>(trades.size());
+
+		for (MerchantRecipe trade : trades)
+		{
+			Item sellItem = trade.getItemToSell().getItem();
+
+			if (sellItem.getRegistryName() != null &&
+				sellItem.getRegistryName().getPath().equals("emerald"))
+			{
+				tradableRecipes.add(trade);
+			}
+		}
+
+		if (tradableRecipes.size() > 0)
+		{
+			this.processingThread = new Thread(
+				new TradingThreadProcessor(this.mc, tradableRecipes, this.inventorySlots));
+			this.processingThread.setDaemon(true);
+			this.processingThread.start();
+		}
+	}
+
+
 
 
 	/**
@@ -370,8 +410,22 @@ public class ImprovedGuiMerchant extends GuiMerchant
 			MerchantRecipe recipe,
 			Container inventorySlots)
 		{
+			this(minecraft, Collections.singletonList(recipe), inventorySlots);
+		}
+
+
+		/**
+		 * Default constructor, that inits all necessary values.
+		 * @param minecraft Game variable.
+		 * @param recipeList List of recipes that must be used in current session.
+		 * @param inventorySlots Inventory slots.
+		 */
+		protected TradingThreadProcessor(Minecraft minecraft,
+			List<MerchantRecipe> recipeList,
+			Container inventorySlots)
+		{
 			this.minecraft = minecraft;
-			this.recipe = recipe;
+			this.recipeList = recipeList;
 			this.inventorySlots = inventorySlots;
 		}
 
@@ -396,28 +450,42 @@ public class ImprovedGuiMerchant extends GuiMerchant
 				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
 					"Is selling all: " + this.sellAll());
 				EasierVillagerTrading.LOGGER.log(Level.DEBUG,
-					"Processed Recipe: " + this.recipe.getItemToBuy().toString() + " + " + this.recipe.getSecondItemToBuy().toString() + " = " + this.recipe.getItemToSell().toString());
+					"Number of recipes to precess: " + this.recipeList.size());
 			}
 
-			if (this.sellAll())
+			for (int i = 0; i < this.recipeList.size() && !Thread.currentThread().isInterrupted(); i++)
 			{
-				while (!Thread.currentThread().isInterrupted() &&
-					!this.recipe.isRecipeDisabled() &&
-					ImprovedGuiMerchant.this.inputSlotsAreEmpty() &&
-					ImprovedGuiMerchant.this.hasEnoughItemsInInventory(this.recipe) &&
-					ImprovedGuiMerchant.this.canReceiveOutput(this.recipe.getItemToSell()))
+				MerchantRecipe recipe = this.recipeList.get(i);
+
+				if (ImprovedGuiMerchant.debugMode)
 				{
-					this.transact();
+					EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+						"Processed Recipe: " +
+							recipe.getItemToBuy().toString() + " + " +
+							recipe.getSecondItemToBuy().toString() + " = " +
+							recipe.getItemToSell().toString());
 				}
-			}
-			else
-			{
-				if (!this.recipe.isRecipeDisabled() &&
-					ImprovedGuiMerchant.this.inputSlotsAreEmpty() &&
-					ImprovedGuiMerchant.this.hasEnoughItemsInInventory(this.recipe) &&
-					ImprovedGuiMerchant.this.canReceiveOutput(this.recipe.getItemToSell()))
+
+				if (this.sellAll())
 				{
-					this.transact();
+					while (!ImprovedGuiMerchant.this.processingThread.isInterrupted() &&
+						!recipe.isRecipeDisabled() &&
+						ImprovedGuiMerchant.this.inputSlotsAreEmpty() &&
+						ImprovedGuiMerchant.this.hasEnoughItemsInInventory(recipe) &&
+						ImprovedGuiMerchant.this.canReceiveOutput(recipe.getItemToSell()))
+					{
+						this.transact(recipe);
+					}
+				}
+				else
+				{
+					if (!recipe.isRecipeDisabled() &&
+						ImprovedGuiMerchant.this.inputSlotsAreEmpty() &&
+						ImprovedGuiMerchant.this.hasEnoughItemsInInventory(recipe) &&
+						ImprovedGuiMerchant.this.canReceiveOutput(recipe.getItemToSell()))
+					{
+						this.transact(recipe);
+					}
 				}
 			}
 		}
@@ -426,7 +494,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		/**
 		 * This method process given recipe trading. It fill and click necessary slots.
 		 */
-		private void transact()
+		private void transact(MerchantRecipe recipe)
 		{
 			if (ImprovedGuiMerchant.debugMode)
 			{
@@ -434,12 +502,12 @@ public class ImprovedGuiMerchant extends GuiMerchant
 					"Transaction is started");
 			}
 
-			int putBack0 = this.fillSlot(0, this.recipe.getItemToBuy());
-			int putBack1 = this.recipe.hasSecondItemToBuy() ?
-				this.fillSlot(1, this.recipe.getSecondItemToBuy()) : -1;
+			int putBack0 = this.fillSlot(0, recipe.getItemToBuy());
+			int putBack1 = recipe.hasSecondItemToBuy() ?
+				this.fillSlot(1, recipe.getSecondItemToBuy()) : -1;
 
 			// Collect result.
-			this.getSlot(this.recipe.getItemToSell(), putBack0, putBack1);
+			this.getSlot(recipe.getItemToSell(), putBack0, putBack1);
 
 			// Empty first slot.
 			if (putBack0 != -1)
@@ -618,6 +686,11 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		 */
 		private void slotClick(int slot)
 		{
+			if (ImprovedGuiMerchant.this.processingThread.isInterrupted())
+			{
+				return;
+			}
+
 			try
 			{
 				// Adjust delay between actions with server ping.
@@ -626,6 +699,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 			catch (Exception e)
 			{
 				EasierVillagerTrading.LOGGER.log(Level.ERROR, "Exception by applying thread sleep.");
+				Thread.currentThread().stop();
 			}
 
 			this.minecraft.playerController.windowClick(
@@ -663,8 +737,9 @@ public class ImprovedGuiMerchant extends GuiMerchant
 			// I will use shortest version
 
 			return ImprovedGuiMerchant.this.buttonPanel.isSellAllChecked() ||
-				InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)||
-				InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT);
+				InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) ||
+				InputMappings.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT) ||
+				this.recipeList.size() > 1;
 		}
 
 
@@ -676,7 +751,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		/**
 		 * This variable holds recipe that currently is running.
 		 */
-		private MerchantRecipe recipe;
+		private List<MerchantRecipe> recipeList;
 
 		/**
 		 * Main game variable for easier internal use.
@@ -706,9 +781,7 @@ public class ImprovedGuiMerchant extends GuiMerchant
 		if (this.processingThread != null && this.processingThread.isAlive())
 		{
 			this.processingThread.interrupt();
-			this.processingThread = null;
 			EasierVillagerTrading.LOGGER.log(Level.WARN, "Treading thread was forcefully canceled by gui closing.");
-
 		}
 	}
 
