@@ -71,7 +71,7 @@ dependencies {
   // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
   // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
   // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-  minecraft 'net.minecraftforge:forge:1.13.2-25.0.145'
+  minecraft 'net.minecraftforge:forge:1.13.2-25.0.175'
 
   // You may put jars on which you depend on in ./libs or you may define them like so..
   // compile "some.group:artifact:version:classifier"
@@ -133,7 +133,7 @@ publishing {
 
 static def computeVersionName() {
   if (System.env.BUILD_NUMBER) {
-    return "2.1-SNAPSHOT-" + System.env.BUILD_NUMBER + "-MC-1.12.2"
+    return "2.1-SNAPSHOT-" + System.env.BUILD_NUMBER + "-MC-1.13.2"
   } else {
     return "2.1-MC-" + gitBranch()
   }
