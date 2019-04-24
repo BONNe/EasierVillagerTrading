@@ -622,8 +622,66 @@ public class ImprovedGuiMerchant extends GuiMerchant
 			int remaining = stack.getCount();
 			this.slotClick(2);
 
+			if (InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
+			{
+				// shift click was applied. Free forbidden slots
+
+				for (int f : forbidden)
+				{
+					if (f != -1 && this.inventorySlots.getSlot(f).getStack().getItem() == stack.getItem())
+					{
+						this.slotClick(f);
+
+						if (ImprovedGuiMerchant.debugMode)
+						{
+							EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+								"Moving item from slot " + f);
+						}
+
+						// move item to different slot
+
+						for (int i = this.inventorySlots.inventorySlots.size() - 36;
+							i < this.inventorySlots.inventorySlots.size();
+							i++)
+						{
+							boolean isForbidden = false;
+
+							for (int fi : forbidden)
+							{
+								if (i == fi)
+								{
+									isForbidden = true;
+								}
+							}
+
+							if (isForbidden)
+							{
+								continue;
+							}
+
+							ItemStack invstack = this.inventorySlots.getSlot(i).getStack();
+
+							if (invstack.isEmpty())
+							{
+								this.slotClick(i);
+
+								if (ImprovedGuiMerchant.debugMode)
+								{
+									EasierVillagerTrading.LOGGER.log(Level.DEBUG,
+										"Moving item from slot " + f + " to " + i);
+								}
+
+								break;
+							}
+						}
+					}
+				}
+
+				return;
+			}
+
 			for (int i = this.inventorySlots.inventorySlots.size() - 36;
-				i < this.inventorySlots.inventorySlots.size();
+				i < this.inventorySlots.inventorySlots.size() && remaining > 0;
 				i++)
 			{
 				ItemStack inventoryStack = this.inventorySlots.getSlot(i).getStack();
@@ -706,7 +764,8 @@ public class ImprovedGuiMerchant extends GuiMerchant
 				this.minecraft.player.openContainer.windowId,
 				slot,
 				0,
-				ClickType.PICKUP,
+				InputMappings.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) && slot == 2 ?
+					ClickType.QUICK_MOVE : ClickType.PICKUP,
 				this.minecraft.player);
 
 			if (ImprovedGuiMerchant.debugMode)
